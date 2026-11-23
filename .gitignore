@@ -1,0 +1,13 @@
+# credentials belong in ~/.sheetvid, never here; ignored in case one lands in the folder
+credentials.json
+token.json
+client_secret*.json
+
+# test media
+*.mp4
+*.mov
+*.jpg
+*.jpeg
+*.png
+
+__pycache__/
