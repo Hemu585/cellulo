@@ -106,7 +106,7 @@ def upload(svc, path, sheet_id=None):
     sheets = svc.spreadsheets()
     if not sheet_id:
         body = {
-            "properties": {"title": f"sheetvid - {name}"},
+            "properties": {"title": f"Cellulo - {name}"},
             "sheets": [{"properties": {"title": "meta"}}, {"properties": {"title": "chunks"}}],
         }
         sheet_id = sheets.create(body=body, fields="spreadsheetId").execute(num_retries=RETRIES)["spreadsheetId"]

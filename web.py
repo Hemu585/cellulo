@@ -91,5 +91,5 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print(f"Sheets Video Store: http://127.0.0.1:{PORT}  (Ctrl+C to stop)")
+    print(f"Cellulo: http://127.0.0.1:{PORT}  (Ctrl+C to stop)")
     ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()

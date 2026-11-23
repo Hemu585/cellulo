@@ -1,4 +1,4 @@
-# sheets-video-store
+# Cellulo
 
 Proof of concept: store a small video or image **inside Google Sheets cells** as Base64 text, then restore the identical file. No Google Drive link; the file's bytes live in the cells.
 
@@ -46,7 +46,7 @@ One file per spreadsheet. Images work the same way as videos.
 
 ## Hosted page
 
-<https://sheets-video-store.vercel.app> uploads and restores in the browser; nothing to install.
+<https://cellulo-app.vercel.app> uploads and restores in the browser; nothing to install.
 
 **Upload:** choose **Upload**, pick a video or image (or drop it on the box), press **Upload** and sign in with your own Google account. The file goes into a new spreadsheet in your own Google Drive. With **Anyone with the link can restore it** ticked (the default), the page then shows a link you can send to anyone.
 

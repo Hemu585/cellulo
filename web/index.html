@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sheets Video Store</title>
+<title>Cellulo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -171,7 +171,7 @@
       <path d="M13 9.5v15l12-7.5z" stroke-linejoin="round"/>
       <path d="M34 5v24h31V5zM34 13h31M34 21h31M44.3 5v24M54.6 5v24" stroke-width="1.3"/>
     </svg>
-    <span>Sheets Video Store</span>
+    <span>Cellulo</span>
   </div>
   <span class="route" id="route">SHEETS &rarr; VIDEO</span>
 </header>
@@ -232,7 +232,7 @@
   </div>
 </main>
 
-<footer>Sheets Video Store</footer>
+<footer>Cellulo</footer>
 
 <script>
 (() => {
@@ -422,7 +422,7 @@
       if (response.status === 403 && /caller does not have permission/i.test(detail))   // a blocked site says "Permission denied on the service"
         throw new Error('This sheet is not shared. In Google Sheets choose Share, then General access: Anyone with the link, Viewer.');
       if (response.status === 404) throw new Error('No spreadsheet found at that link.');
-      if (/Unable to parse range/i.test(detail)) throw new Error('That spreadsheet was not made by Sheets Video Store.');
+      if (/Unable to parse range/i.test(detail)) throw new Error('That spreadsheet was not made by Cellulo.');
       throw new Error(`Google Sheets answered ${response.status}${detail ? ': ' + detail : ''}.`);
     }
   }
@@ -580,7 +580,7 @@
     for (let at = 0; at < bytes.length; at += BYTES_PER_CHUNK) rows.push([rows.length, encodeChunk(bytes.subarray(at, at + BYTES_PER_CHUNK))]);
     const sheets = 'https://sheets.googleapis.com/v4/spreadsheets';
     const { spreadsheetId: id } = await googleCall('POST', sheets, {
-      properties: { title: `sheetvid - ${file.name}` },
+      properties: { title: `Cellulo - ${file.name}` },
       sheets: [{ properties: { title: 'meta' } }, { properties: { title: 'chunks', gridProperties: { rowCount: Math.max(1000, rows.length) } } }],
     }, accessToken);
     // RAW: Sheets must never read a chunk starting with + or = as a formula
