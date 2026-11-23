@@ -128,12 +128,15 @@
   .modes button[disabled] { cursor: progress; }
   .field[data-drop] { border-color: var(--blue); border-style: dashed; }
   .field .pick {
-    flex: 1; min-width: 0; justify-content: flex-start; padding: 10px 6px; border-radius: 6px;
-    background: none; color: #5f6a76; font-weight: 400; font-size: clamp(1rem, 1.4vw, 1.4rem);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; align-self: stretch;
+    margin-left: -14px; padding: 6px 6px 6px 14px; border-radius: 12px; cursor: pointer;
+    color: #5f6a76; font-size: clamp(1rem, 1.4vw, 1.4rem);
   }
-  .field .pick:hover { background: none; color: var(--ink); }
+  .field .pick svg { width: 34px; height: 34px; flex: none; color: #52708c; }
+  .field .pick span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field .pick:hover { background: rgba(52, 96, 138, 0.06); color: var(--ink); }
   .field .pick.chosen { color: var(--ink); }
+  #file:focus-visible + .pick { outline: 2px solid var(--blue); outline-offset: 3px; }
   .share { display: inline-flex; align-items: center; gap: 10px; margin: 20px 0 0; font-size: 1rem; color: #3f4a57; cursor: pointer; }
   .share input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); }
   .meta .actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -148,7 +151,8 @@
     .brand svg { width: 52px; height: 26px; }
     .brand { gap: 12px; }
     .field { flex-wrap: wrap; padding: 14px; border-radius: 18px; }
-    .field > svg { width: 26px; height: 26px; margin-left: 6px; }
+    .field > svg, .field .pick svg { width: 26px; height: 26px; margin-left: 6px; }
+    .field .pick { margin-left: 0; padding-left: 0; }
     .field button { width: 100%; }
     .caption { letter-spacing: 0.14em; }
     .meta .button { width: 100%; }
@@ -187,14 +191,17 @@
         <path d="M10.2 13.8a4 4 0 0 0 5.7 0l3.3-3.3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/>
         <path d="M13.8 10.2a4 4 0 0 0-5.7 0l-3.3 3.3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>
       </svg>
-      <svg id="icon-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
-        <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/>
-        <path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>
-      </svg>
       <label class="sr-only" for="link">Google Sheets link</label>
       <input id="link" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste your Google Sheets link here&hellip;">
-      <button type="button" class="pick" id="pick" hidden>Choose a video or image&hellip;</button>
-      <input id="file" type="file" accept="video/*,image/*" hidden>
+      <!-- a label for the file input opens the system file picker natively; a scripted click on a hidden input does not in every browser -->
+      <input id="file" type="file" accept="video/*,image/*" class="sr-only">
+      <label class="pick" id="pick" for="file" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/>
+          <path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>
+        </svg>
+        <span id="pick-text">Click to choose a video or image from your computer&hellip;</span>
+      </label>
       <button id="go" type="submit"><span id="go-label">Restore</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
     </form>
     <label class="share" id="share-row" hidden><input type="checkbox" id="share" checked> Anyone with the link can restore it</label>
@@ -496,8 +503,7 @@
     document.getElementById('lede').textContent = copy.lede;
     goLabel.textContent = copy.go;
     input.hidden = up; pick.hidden = !up; shareRow.hidden = !up;
-    // SVG elements have no .hidden property, so set the attribute
-    document.getElementById('icon-link').toggleAttribute('hidden', up); document.getElementById('icon-up').toggleAttribute('hidden', !up);
+    document.getElementById('icon-link').toggleAttribute('hidden', up);   // SVG elements have no .hidden property
     result.hidden = true; sent.hidden = true;
     say(copy.hint);
     if (up) loadGis().catch(error => say(error.message, true));
@@ -506,10 +512,11 @@
 
   function choose(file) {
     chosen = file || null;
-    pick.textContent = chosen ? `${chosen.name} · ${(chosen.size / 1e6).toFixed(chosen.size < 1e6 ? 2 : 1)} MB` : 'Choose a video or image…';
+    document.getElementById('pick-text').textContent = chosen
+      ? `${chosen.name} · ${(chosen.size / 1e6).toFixed(chosen.size < 1e6 ? 2 : 1)} MB · click to change`
+      : 'Click to choose a video or image from your computer…';
     pick.classList.toggle('chosen', !!chosen);
   }
-  pick.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => choose(fileInput.files[0]));
   form.addEventListener('dragover', event => { if (mode !== 'upload') return; event.preventDefault(); form.dataset.drop = ''; });
   form.addEventListener('dragleave', () => delete form.dataset.drop);
