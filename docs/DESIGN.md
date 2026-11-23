@@ -109,6 +109,7 @@ The same `web/index.html` is deployed as a static site to <https://sheets-video-
 - Same layout and order as `sheetvid.py`: create the spreadsheet (the `chunks` tab is created with enough rows), write chunks 25 rows per call with RAW, write `meta` last.
 - If the share box is ticked, a Drive API call then gives "anyone with the link" reader access. The Google Drive API is enabled in `sheetvid-poc` for this.
 - The sign-in window has to open from the click itself, so the page asks for the token before any other await.
+- Measured: `sheetvid.py` (desktop OAuth client) can open a sheet the website (web OAuth client) created, and the reverse is true for public reading, so both clients share `drive.file` access inside the same Cloud project.
 - The app is in Testing: only listed test users can sign in. Letting anyone sign in means publishing the app in Google Auth Platform, which may need a privacy policy and brand verification.
 
 ## Rate limits
