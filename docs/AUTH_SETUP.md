@@ -21,9 +21,10 @@ At the end you will have one file: `C:\Users\<you>\.sheetvid\credentials.json`.
 2. **App information:** app name `sheetvid`, support email = your address.
 3. **Audience:** choose **External**.
 4. **Contact information:** your email. Agree to the policy → **Create**.
-5. Open **Audience** in the left menu → **Test users** → **Add users** → add your own Gmail address → **Save**.
+5. Open **Audience** in the left menu → **Test users** → **Add users** → type your own Gmail address, press Enter → **Save**.
+6. Check that your address now appears in the Test users list. If the panel is still open, click **Save** again; the first click can be swallowed.
 
-Skipping step 5 gives `Error 403: access_denied` when you sign in.
+Without a saved test user, sign-in fails with `Error 403: access_denied`.
 
 ## 4. Create the sign-in client
 
@@ -33,10 +34,16 @@ Skipping step 5 gives `Error 403: access_denied` when you sign in.
 
 ## 5. Put the file in place
 
-The folder `C:\Users\<you>\.sheetvid` already exists. Move the download there and rename it:
+Create the folder:
 
 ```powershell
-Move-Item "$HOME\Downloads\client_secret_*.json" "$HOME\.sheetvid\credentials.json"
+New-Item -ItemType Directory -Force "$HOME\.sheetvid"
+```
+
+Move the newest download there and rename it (this picks the latest one if you have several `client_secret` files):
+
+```powershell
+Get-ChildItem "$HOME\Downloads\client_secret_*.json" | Sort-Object LastWriteTime | Select-Object -Last 1 | Move-Item -Destination "$HOME\.sheetvid\credentials.json"
 ```
 
 ## 6. First run

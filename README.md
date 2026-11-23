@@ -46,11 +46,15 @@ One file per spreadsheet. Images work the same way as videos.
 
 ## Size
 
-| File size | Cells | Calls each way | Status |
-|---|---|---|---|
-| 1 MB | about 35 | 2 | default cap |
-| 5 MB | about 170 | 7 | expected to be comfortable; not yet measured |
-| 25 MB | about 835 | 34 | expected to be slow, and the spreadsheet heavy in the browser; not yet measured |
+Measured on 23 Nov 2026, one run each. Every restored file matched by SHA-256.
+
+| File size | Chunks | Upload | Download | Note |
+|---|---|---|---|---|
+| 0.9 MB | 31 | 6 s | 5 s | default cap is 1 MB |
+| 4.8 MB | 160 | 16 s | 10 s | needs `--max-mb 5` |
+| 24 MB | 802 | 48 s | 33 s | needs `--max-mb 25`; the spreadsheet still opens normally |
+
+Above 25 MB is blocked: the tool would have to add rows to the tab first.
 
 ## Tests
 

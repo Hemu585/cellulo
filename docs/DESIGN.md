@@ -19,7 +19,7 @@ Hold the actual bytes of one small file in Google Sheets cells as Base64 text, a
 
 Notes:
 
-- Google documents the 50,000-character rule only for Excel imports. The API also rejects longer cells in practice. The first live upload confirms 40,000 is accepted.
+- Google documents the 50,000-character rule only for Excel imports. The API also rejects longer cells in practice. The live upload confirmed a 40,000-character cell is accepted and read back intact.
 - Google's limits page says exceeding the request quota "is planned to incur charges to your Google Cloud billing account later in 2026". Normal use is free, and this tool makes a handful of calls per run.
 
 Sources: [Sheets API usage limits](https://developers.google.com/workspace/sheets/api/limits), [Files you can store in Google Drive](https://support.google.com/drive/answer/37603?hl=en).
@@ -97,15 +97,18 @@ Every call runs with `execute(num_retries=6)`. The Google client library retries
 - One chunk is 30,000 bytes of file. A new tab has 1,000 rows, so 999 chunks, about 29.9 MB, fit before rows would have to be added. The tool stops at 25 MB.
 - Google's ceiling of 100 MB per spreadsheet suggests about 70 MB of file at best. Not verified.
 
-### Measured timings
+### Measured timings (23 Nov 2026, one run each)
 
-To be filled in after the live tests.
+| File | Size | Chunks | Upload | Download | Spreadsheet opens in browser? |
+|---|---|---|---|---|---|
+| sample.png | 96 KB | 4 | 4.8 s | 3.1 s | yes |
+| sample.mp4 | 0.9 MB | 31 | 6.0 s | 5.2 s | yes |
+| sample5.mp4 | 4.8 MB | 160 | 15.5 s | 10.3 s | yes, about 3 s |
+| sample25.mp4 | 24.0 MB | 802 | 47.9 s | 33.1 s | yes, within seconds |
 
-| File size | Upload | Download | Spreadsheet opens in browser? |
-|---|---|---|---|
-| 1 MB | | | |
-| 5 MB | | | |
-| 25 MB | | | |
+Every restored file matched its original by SHA-256. Times include Python start-up and depend on the internet connection. No HTTP 429 was hit at any size.
+
+The earlier guess that a 25 MB spreadsheet would be heavy in the browser was wrong: both tabs opened and scrolled normally.
 
 ## Not built
 

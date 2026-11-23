@@ -12,27 +12,31 @@ Last updated: 23 Nov 2026.
 - [x] Sample clip `sample.mp4`, 903,473 bytes (not committed)
 - [x] Guards checked by hand: missing credentials, missing file, over the cap, cap above 25
 
-## Your part
+## Google sign-in
 
-- [ ] Google sign-in setup: [AUTH_SETUP.md](AUTH_SETUP.md), about 10 minutes
+- [x] Cloud project `sheetvid-poc`, Sheets API enabled, consent screen (External, Testing), test user, Desktop client
+- [x] `credentials.json` and `token.json` in `~/.sheetvid`, outside this folder
 
-## Live tests (need the sign-in)
+## Live tests against real Google Sheets (23 Nov 2026)
 
-- [ ] 1. `python sheetvid.py upload sample.mp4` prints a spreadsheet link
-- [ ] 2. The spreadsheet shows Base64 text in `chunks` (31 chunks) and five values in `meta`
-- [ ] 3. `python sheetvid.py download --sheet <ID> -o restored.mp4` prints matching checksums
-- [ ] 4. `Get-FileHash sample.mp4, restored.mp4` shows identical hashes, and `restored.mp4` plays
-- [ ] 5. Delete one chunk row in the spreadsheet: download stops with `missing chunks`, writes no file
-- [ ] 6. Duplicate one chunk row: download stops with `duplicate chunk`, writes no file
-- [ ] 7. Image: upload a JPEG or PNG under 1 MB, download it, hashes match, picture opens
-- [ ] 8. 5 MB file with `--max-mb 5`: round trip works; record timings in DESIGN.md
-- [ ] 9. 25 MB file with `--max-mb 25`: round trip works; record timings in DESIGN.md
+- [x] 1. `python sheetvid.py upload sample.mp4` printed a spreadsheet link (903,473 bytes, 31 chunks)
+- [x] 2. The spreadsheet shows Base64 text in `chunks` and five values in `meta`; a 40,000-character cell is accepted; chunks starting with `+` are stored as text
+- [x] 3. `python sheetvid.py download --sheet <ID> -o restored.mp4` printed matching checksums
+- [x] 4. `Get-FileHash` shows identical hashes; ffprobe reads `restored.mp4` as a valid 12-second video
+- [x] 5. One chunk row deleted: download stopped with `missing chunks (1 of 31): [5]`, wrote no file
+- [x] 6. One chunk row duplicated: download stopped with `duplicate chunk 2`, wrote no file
+- [x] 6b. Checksum removed, then altered: download stopped both times, wrote no file
+- [x] 7. Image: 96,218-byte PNG round trip, hashes identical
+- [x] 8. 5 MB video with `--max-mb 5`: round trip, hashes identical
+- [x] 9. 24 MB video with `--max-mb 25`: round trip, hashes identical, spreadsheet still opens normally
+
+Tests 5, 6 and 6b edited the spreadsheet through the API rather than by hand; the effect on the cells is the same. Timings are in [DESIGN.md](DESIGN.md).
+
+Not done: nobody has watched `restored.mp4` play or opened `restored.png` by eye. The byte-for-byte hash match makes a difference impossible, but it is a check by tool, not by eye.
 
 ## What the offline tests do and do not prove
 
-They prove the chunking, the reassembly, every rejection rule, and the upload and download logic against an in-memory stand-in for Sheets.
-
-They do not prove that the real Sheets API behaves like the stand-in. Live tests 1 to 4 settle that, including whether a 40,000-character cell is accepted.
+They prove the chunking, the reassembly, every rejection rule, and the upload and download logic against an in-memory stand-in for Sheets. The live tests above confirm the real Sheets API behaves like the stand-in.
 
 ## Rule for changes
 
