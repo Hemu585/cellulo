@@ -37,6 +37,7 @@ Last updated: 23 Nov 2026.
 - [x] 12. Hosted page (24 Nov 2026) at https://sheets-video-store.vercel.app: a publicly shared test sheet (`sheetvid - public-demo.mp4`, the colour-bar clip) restored and played, SHA-256 verified in the browser. A private sheet was refused with the sharing instructions. The API key works from the site and is refused from another site and with no referrer. Files over 1 MB were not tried through the hosted page.
 
 - [x] 13. Upload from the website (24 Nov 2026). Checked first: mode switch, file picker, share box, and the message when the sign-in window is blocked. Then the owner uploaded `silvee-evening-motion-preview (1).mp4` (1,230,585 bytes, 42 chunks) on the live site with their own Google account. The new sheet was readable with no sign-in (so the share box worked), rebuilt by `assemble()` with SHA-256 identical to the original file in Downloads, and also restored by `sheetvid.py download`, so sheets made by the website and by the command-line tool are interchangeable. The owner's upload ran twice, leaving two identical sheets.
+- [x] 14. File picker fix (24 Nov 2026): the "choose a file" box did not open the file window in the owner's browser. It is now a label tied to the file input; the owner confirmed the file window opens.
 
 Tests 5, 6 and 6b edited the spreadsheet through the API rather than by hand; the effect on the cells is the same. Timings are in [DESIGN.md](DESIGN.md).
 
