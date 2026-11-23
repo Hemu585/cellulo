@@ -95,7 +95,7 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 
 ### Hosted on Vercel
 
-The same `web/index.html` is deployed as a static site to <https://cellulo-app.vercel.app> (Vercel project `cellulo`, linked in `web/`). The old address <https://sheets-video-store.vercel.app> still serves it. `cellulo.vercel.app` belongs to another Vercel project, so it could not be used.
+The same `web/index.html` is deployed as a static site to <https://cellulo-app.vercel.app> (Vercel project `cellulo`, linked in `web/`). The old address <https://sheets-video-store.vercel.app> permanently forwards (HTTP 308) to it. `cellulo.vercel.app` belongs to another Vercel project, so it could not be used.
 
 - When the page is not on `127.0.0.1` or `localhost`, it reads the sheet itself, in the browser, through the Sheets API with an API key, and applies the same checks as `assemble()`.
 - This only works for sheets shared as "anyone with the link". That was the owner's choice on 24 Nov 2026, over putting their Google sign-in on a public server.
