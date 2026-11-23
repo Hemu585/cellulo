@@ -9,7 +9,7 @@ from pathlib import Path
 
 CHUNK = 40_000  # characters per cell; Sheets rejects cells over 50,000
 BATCH = 25  # rows per API call: about 1 MB, under Google's recommended 2 MB payload
-MAX_MB = 25  # shortcut: a new tab has 1,000 rows (999 chunks = 29.9 MB), add rows with batchUpdate to go higher
+MAX_MB = 100  # Google refuses a spreadsheet at about 110 MB of file and then blocks all edits to it (measured Nov 2026)
 RETRIES = 6  # the client library retries 429 and 5xx with randomised exponential backoff
 HOME = Path.home() / ".sheetvid"  # credentials live outside the project folder
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]  # only spreadsheets this tool created
@@ -115,6 +115,17 @@ def upload(svc, path, sheet_id=None):
     # clear first so rows from an older, longer file cannot linger
     sheets.values().batchClear(spreadsheetId=sheet_id, body={"ranges": ["meta", "chunks"]}).execute(num_retries=RETRIES)
     rows = [["chunk", "data"]] + [[i, c] for i, c in enumerate(chunks, 1)]
+
+    # a new tab has 1,000 rows; writing past the grid is an error, so grow it first
+    tabs = sheets.get(spreadsheetId=sheet_id, fields="sheets.properties").execute(num_retries=RETRIES)["sheets"]
+    tab = next((t["properties"] for t in tabs if t["properties"]["title"] == "chunks"), None)
+    if tab is None:
+        raise ValueError("the spreadsheet has no 'chunks' tab; upload without --sheet to create a fresh one")
+    short = len(rows) - tab["gridProperties"]["rowCount"]
+    if short > 0:
+        grow = {"appendDimension": {"sheetId": tab["sheetId"], "dimension": "ROWS", "length": short}}
+        sheets.batchUpdate(spreadsheetId=sheet_id, body={"requests": [grow]}).execute(num_retries=RETRIES)
+
     for start in range(0, len(rows), BATCH):
         write(f"chunks!A{start + 1}", rows[start:start + BATCH])
         print(f"  wrote rows {start + 1}-{min(start + BATCH, len(rows))} of {len(rows)}")
@@ -181,7 +192,7 @@ def main(argv=None):
         sys.exit(f"ERROR: {err}. Nothing was written.")
     except HttpError as err:
         hint = " The spreadsheet does not exist, or was not created by this tool." if err.status_code in (403, 404) else ""
-        sys.exit(f"ERROR: Google Sheets returned HTTP {err.status_code}: {err.reason}.{hint}")
+        sys.exit(f"ERROR: Google Sheets returned HTTP {err.status_code}: {str(err.reason).rstrip('.')}.{hint}")
 
 
 if __name__ == "__main__":

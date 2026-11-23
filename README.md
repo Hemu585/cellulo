@@ -39,7 +39,7 @@ Options:
 | Option | Command | Meaning |
 |---|---|---|
 | `--sheet ID` | upload | Reuse a spreadsheet from an earlier upload. Its previous file is replaced. |
-| `--max-mb N` | upload | Raise the size cap. Default 1, at most 25. |
+| `--max-mb N` | upload | Raise the size cap. Default 1, at most 100. |
 | `-o PATH` | download | Where to save. Default is the original filename. |
 
 One file per spreadsheet. Images work the same way as videos.
@@ -53,8 +53,13 @@ Measured on 23 Nov 2026, one run each. Every restored file matched by SHA-256.
 | 0.9 MB | 31 | 6 s | 5 s | default cap is 1 MB |
 | 4.8 MB | 160 | 16 s | 10 s | needs `--max-mb 5` |
 | 24 MB | 802 | 48 s | 33 s | needs `--max-mb 25`; the spreadsheet still opens normally |
+| 50 MB | 1,671 | 71 s | 56 s | needs `--max-mb 50` |
+| 90 MB | 3,006 | 132 s | 131 s | needs `--max-mb 90` |
+| 99 MB | 3,312 | 153 s | 136 s | needs `--max-mb 100` |
 
-Above 25 MB is blocked: the tool would have to add rows to the tab first.
+The cap is 100 MB. Google refuses a spreadsheet at about 110 MB of file ("This document is too large to continue editing"), and a spreadsheet that reaches that point accepts no further edits.
+
+Sharing the spreadsheet does not let the other person download the file: the tool only opens spreadsheets it created under your own sign-in.
 
 ## Tests
 

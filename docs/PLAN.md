@@ -30,6 +30,8 @@ Last updated: 23 Nov 2026.
 - [x] 8. 5 MB video with `--max-mb 5`: round trip, hashes identical
 - [x] 9. 24 MB video with `--max-mb 25`: round trip, hashes identical, spreadsheet still opens normally
 
+- [x] 10. Limit search (23 to 24 Nov 2026): 50, 70, 80, 90 and 99 MB round trips, hashes identical. 120 MB (reused spreadsheet) and 130 MB (fresh spreadsheet) both refused by Google at about 110 MB of file. Cap set to 100 MB.
+
 Tests 5, 6 and 6b edited the spreadsheet through the API rather than by hand; the effect on the cells is the same. Timings are in [DESIGN.md](DESIGN.md).
 
 Not done: nobody has watched `restored.mp4` play or opened `restored.png` by eye. The byte-for-byte hash match makes a difference impossible, but it is a check by tool, not by eye.

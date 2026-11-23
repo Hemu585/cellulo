@@ -55,8 +55,9 @@ Base64 text can start with `+`, `/` or contain `=`. With the default input mode,
 2. SHA-256, Base64-encode, split into 40,000-character chunks.
 3. No `--sheet`: create a spreadsheet with tabs `meta` and `chunks`.
 4. Clear both tabs in one call. Otherwise rows from an older, longer file would linger and look like extra chunks.
-5. Write the header and chunks, 25 rows per call.
-6. Write `meta` last. If the upload is cut short there is no metadata, and download refuses to proceed.
+5. If the file needs more rows than the `chunks` tab has, add them (one call).
+6. Write the header and chunks, 25 rows per call.
+7. Write `meta` last. If the upload is cut short there is no metadata, and download refuses to proceed.
 
 ## Download order
 
@@ -93,9 +94,15 @@ Every call runs with `execute(num_retries=6)`. The Google client library retries
 
 ## Size cap
 
-- Default 1 MB. `--max-mb` raises it, up to 25.
-- One chunk is 30,000 bytes of file. A new tab has 1,000 rows, so 999 chunks, about 29.9 MB, fit before rows would have to be added. The tool stops at 25 MB.
-- Google's ceiling of 100 MB per spreadsheet suggests about 70 MB of file at best. Not verified.
+- Default 1 MB. `--max-mb` raises it, up to 100.
+- One chunk is 30,000 bytes of file. A new tab has 1,000 rows; for bigger files the tool adds rows to the `chunks` tab before writing.
+- **Measured wall: about 110 MB of file per spreadsheet** (23 to 24 Nov 2026, two runs):
+  - Fresh spreadsheet, 130 MB upload: refused after 3,749 chunks were accepted (112.5 MB of file, 150 million Base64 characters). The error text of this run was not captured.
+  - Spreadsheet already reused for five large uploads, 120 MB upload: refused after 3,649 chunks (109.5 MB of file) with HTTP 400 "This document is too large to continue editing".
+- Google's documented "100 MB per spreadsheet" is not the exact wall for this layout: 99.3 MB of file (132 MB of text) was stored and restored on a fresh spreadsheet.
+- The tool stops at 100 MB, the largest size proven, which leaves margin below the wall.
+- **A spreadsheet that hits the wall is stuck.** Google then refuses every edit to it, including clearing it, so the tool cannot reuse it. Delete it and upload to a new one. The 100 MB cap exists so the tool never gets there.
+- A refused upload leaves no `meta`, so download rejects it.
 
 ### Measured timings (23 Nov 2026, one run each)
 
@@ -105,14 +112,24 @@ Every call runs with `execute(num_retries=6)`. The Google client library retries
 | sample.mp4 | 0.9 MB | 31 | 6.0 s | 5.2 s | yes |
 | sample5.mp4 | 4.8 MB | 160 | 15.5 s | 10.3 s | yes, about 3 s |
 | sample25.mp4 | 24.0 MB | 802 | 47.9 s | 33.1 s | yes, within seconds |
+| 50 MB video | 50.1 MB | 1,671 | 71 s | 56 s | not checked |
+| 70 MB video | 70.1 MB | 2,337 | 120 s | 64 s | not checked |
+| 80 MB video | 80.1 MB | 2,671 | 117 s | 107 s | not checked |
+| 90 MB video | 90.2 MB | 3,006 | 132 s | 131 s | not checked |
+| 99 MB video, fresh spreadsheet | 99.3 MB | 3,312 | 153 s | 136 s | not checked |
+| 120 MB video, reused spreadsheet | 120.1 MB | 4,005 | refused after 159 s | n/a | n/a |
+| 130 MB video, fresh spreadsheet | 130.1 MB | 4,338 | refused after 185 s | n/a | n/a |
 
-Every restored file matched its original by SHA-256. Times include Python start-up and depend on the internet connection. No HTTP 429 was hit at any size.
+The 24 MB to 90 MB and 120 MB runs all reused one spreadsheet; the others each used a fresh one.
+
+Every restored file matched its original by SHA-256. Times include Python start-up and depend on the internet connection. No HTTP 429 was seen in the output at any size; the client library retries those silently, so some may have happened.
 
 The earlier guess that a 25 MB spreadsheet would be heavy in the browser was wrong: both tabs opened and scrolled normally.
 
 ## Not built
 
-- Files over 25 MB.
+- Files over 100 MB (would need the file split across several spreadsheets).
+- A way for someone you share the spreadsheet with to download the file. The tool only opens spreadsheets it created under your own sign-in.
 - Several files in one spreadsheet.
 - Resuming an interrupted upload.
 - Compression, a web interface, service-account sign-in.

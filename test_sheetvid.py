@@ -30,8 +30,15 @@ def stored(data, size=10):
 class FakeSheets:
     """In-memory stand-in for the Sheets service: only the calls sheetvid makes."""
 
-    def __init__(self):
+    def __init__(self, rows=1000):
         self.tabs = {"meta": {}, "chunks": {}}  # tab -> {(row, column): value}
+        self.rows = rows  # grid height of the chunks tab
+
+    def batchUpdate(self, spreadsheetId, body):
+        for request in body["requests"]:
+            assert request["appendDimension"]["sheetId"] == 7
+            self.rows += request["appendDimension"]["length"]
+        return self._call({})
 
     def spreadsheets(self):
         return self
@@ -55,12 +62,18 @@ class FakeSheets:
         assert valueInputOption == "RAW"
         tab, first = re.fullmatch(r"(\w+)!A(\d+)", range).groups()
         for r, row in enumerate(body["values"], int(first)):
+            assert tab != "chunks" or r <= self.rows, "write exceeds grid limits"
             for c, value in enumerate(row):
                 assert not isinstance(value, str) or len(value) <= 50_000
                 self.tabs[tab][r, c] = value
         return self._call({})
 
-    def get(self, spreadsheetId, range, valueRenderOption):
+    def get(self, spreadsheetId, range=None, valueRenderOption=None, fields=None):
+        if fields:  # spreadsheets().get: tab properties
+            tabs = [("meta", 3, 1000), ("chunks", 7, self.rows)]
+            return self._call({"sheets": [
+                {"properties": {"title": t, "sheetId": i, "gridProperties": {"rowCount": n}}} for t, i, n in tabs
+            ]})
         assert valueRenderOption == "UNFORMATTED_VALUE"
         tab, first, column, end = re.fullmatch(r"(\w+)!A(\d+):([AB])(\d*)", range).groups()
         cells = self.tabs[tab]
@@ -178,6 +191,12 @@ class RoundTripTest(unittest.TestCase):
         self.svc.tabs["meta"].clear()
         with self.assertRaisesRegex(ValueError, "no complete upload"):
             download(self.svc, self.sheet_id)
+
+    def test_grows_tab_when_file_needs_more_rows(self):
+        svc = FakeSheets(rows=5)
+        sheet_id, meta = upload(svc, self.path)
+        self.assertEqual(svc.rows, meta["chunk_count"] + 1)
+        self.assertEqual(download(svc, sheet_id)[1], self.data)
 
     def test_smaller_file_replaces_larger(self):
         small = os.urandom(50_000)
