@@ -44,6 +44,21 @@ Options:
 
 One file per spreadsheet. Images work the same way as videos.
 
+## Web page
+
+A page for restoring by link, with nothing to type in a terminal after it starts:
+
+```powershell
+python web.py
+```
+
+Open <http://127.0.0.1:8765>, paste a Google Sheets link (or just the spreadsheet ID) and press **Restore**. The video or image appears on the page with a Download button. The page re-computes the SHA-256 in your browser and only shows the file if it matches.
+
+- It signs in as you, with the same credentials as the commands above, so it opens the same spreadsheets: the ones this tool created.
+- It listens on this computer only. It is not a way to share with other people.
+- Large files show a running timer but no progress bar; 100 MB takes over two minutes.
+- The moving dot graphics need a wide window. On a phone-width screen the page works but the graphics are hidden.
+
 ## Size
 
 Measured on 23 Nov 2026, one run each. Every restored file matched by SHA-256.

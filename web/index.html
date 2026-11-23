@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sheets Video Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f3;
+    --paper: #fdfcf9;
+    --ink: #16202e;
+    --blue: #34608a;
+    --muted: #5b6673;
+    --line: #cdd1d4;
+    --warn: #9a3a26;
+    --serif: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --sans: "Geist", "Segoe UI", system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100svh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    overflow-x: hidden;
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .top {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 24px clamp(20px, 3.4vw, 58px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 22px; font-size: clamp(1.05rem, 1.35vw, 1.4rem); letter-spacing: -0.01em; }
+  .brand svg { width: 70px; height: 34px; flex: none; }
+  .route { font-family: var(--mono); font-size: clamp(0.72rem, 0.95vw, 0.95rem); letter-spacing: 0.2em; color: var(--muted); white-space: nowrap; }
+
+  .hero { position: relative; display: grid; place-items: center; padding: clamp(40px, 8vh, 84px) 20px 40px; }
+  #flow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .stack { position: relative; z-index: 1; width: 100%; max-width: 906px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .stack > * { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 14px; margin: 0;
+    padding: 10px 24px; border: 1px solid var(--line); border-radius: 999px;
+    font-family: var(--mono); font-size: clamp(0.78rem, 1vw, 0.98rem); color: #3f4a57; background: color-mix(in srgb, var(--paper) 70%, transparent);
+  }
+  .pill i { width: 9px; height: 9px; border-radius: 50%; background: var(--blue); }
+
+  h1 {
+    margin: clamp(26px, 4.6vh, 46px) 0 0;
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(3.3rem, 7.7vw, 8.1rem); line-height: 0.97; letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+  h1 em { color: var(--blue); }
+  .lede { margin: clamp(22px, 4vh, 40px) 0 0; font-size: clamp(1.1rem, 1.75vw, 1.78rem); color: #4c5764; letter-spacing: 0.005em; }
+
+  .field {
+    display: flex; align-items: center; gap: 16px; width: 100%;
+    margin-top: clamp(30px, 6.4vh, 62px); padding: 16px 16px 16px 30px;
+    background: var(--paper); border: 1px solid #b7bdc4; border-radius: 22px;
+    box-shadow: 0 22px 44px -26px rgba(22, 32, 46, 0.32), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field:focus-within { border-color: var(--blue); box-shadow: 0 22px 44px -26px rgba(22, 32, 46, 0.32), 0 0 0 4px rgba(52, 96, 138, 0.14); }
+  .field > svg { width: 34px; height: 34px; flex: none; color: #52708c; }
+  .field input {
+    flex: 1; min-width: 0; padding: 10px 6px; border: 0; outline: 0; background: none;
+    font: inherit; font-size: clamp(1rem, 1.4vw, 1.4rem); color: var(--ink);
+  }
+  .field input::placeholder { color: #5f6a76; opacity: 1; }
+  button, .button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 14px; flex: none;
+    padding: 18px 32px; border: 0; border-radius: 14px; cursor: pointer;
+    background: var(--ink); color: #fff; text-decoration: none;
+    font: inherit; font-weight: 500; font-size: clamp(1rem, 1.35vw, 1.36rem);
+    transition: transform 0.15s, background 0.2s;
+  }
+  button:hover, .button:hover { background: #22364c; }
+  button:active, .button:active { transform: translateY(1px); }
+  button:hover .arrow, .button:hover .arrow { transform: translateX(4px); }
+  .arrow { transition: transform 0.2s; }
+  button[disabled] { cursor: progress; background: #3a4654; }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .field input:focus-visible { outline: 0; }
+
+  .caption {
+    margin: clamp(28px, 5vh, 46px) 0 0; min-height: 1.4em;
+    font-family: var(--mono); font-size: clamp(0.74rem, 0.95vw, 0.95rem); letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
+  }
+  .caption.error { font-family: var(--sans); font-size: 1.05rem; letter-spacing: 0; text-transform: none; color: var(--warn); }
+
+  .result {
+    width: 100%; margin-top: 36px; overflow: hidden; text-align: left;
+    background: var(--paper); border: 1px solid #b7bdc4; border-radius: 22px;
+    box-shadow: 0 30px 60px -34px rgba(22, 32, 46, 0.4);
+  }
+  .result[hidden] { display: none; }
+  .result video, .result img { display: block; width: 100%; max-height: 62vh; background: #0f1722; object-fit: contain; }
+  .meta { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 20px 20px 26px; flex-wrap: wrap; }
+  .meta h2 { margin: 0; font-size: 1.15rem; font-weight: 500; overflow-wrap: anywhere; }
+  .meta p { margin: 8px 0 0; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .meta .ok { color: #2f6b4f; }
+  .meta .button { padding: 14px 24px; font-size: 1.05rem; }
+
+  footer { padding: 26px 20px 44px; text-align: center; font-family: var(--mono); font-size: 0.9rem; letter-spacing: 0.12em; color: var(--muted); }
+
+  @media (max-width: 600px) {
+    .brand svg { width: 52px; height: 26px; }
+    .brand { gap: 12px; }
+    .field { flex-wrap: wrap; padding: 14px; border-radius: 18px; }
+    .field > svg { width: 26px; height: 26px; margin-left: 6px; }
+    .field button { width: 100%; }
+    .caption { letter-spacing: 0.14em; }
+    .meta .button { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stack > * { animation: none; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 70 34" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <rect x="1" y="1" width="68" height="32" rx="4"/>
+      <path d="M13 9.5v15l12-7.5z" stroke-linejoin="round"/>
+      <path d="M34 5v24h31V5zM34 13h31M34 21h31M44.3 5v24M54.6 5v24" stroke-width="1.3"/>
+    </svg>
+    <span>Sheets Video Store</span>
+  </div>
+  <span class="route">SHEETS &rarr; VIDEO</span>
+</header>
+
+<main class="hero">
+  <canvas id="flow" aria-hidden="true"></canvas>
+  <div class="stack">
+    <p class="pill" style="--i:0"><i></i>A simpler way to get video back</p>
+    <h1 style="--i:1">Your video.<br><em>One link</em> away.</h1>
+    <p class="lede" style="--i:2">Paste a Google Sheets link to restore it.</p>
+    <form class="field" id="form" style="--i:3">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <path d="M10.2 13.8a4 4 0 0 0 5.7 0l3.3-3.3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/>
+        <path d="M13.8 10.2a4 4 0 0 0-5.7 0l-3.3 3.3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>
+      </svg>
+      <label class="sr-only" for="link">Google Sheets link</label>
+      <input id="link" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste your Google Sheets link here&hellip;" required>
+      <button id="go" type="submit"><span id="go-label">Restore</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
+    </form>
+    <p class="caption" id="status" role="status" style="--i:4">Paste a link. We&rsquo;ll take it from here.</p>
+    <section class="result" id="result" aria-label="Restored file" hidden>
+      <div id="media"></div>
+      <div class="meta">
+        <div>
+          <h2 id="name"></h2>
+          <p id="facts"></p>
+        </div>
+        <a class="button" id="save">Download <span class="arrow" aria-hidden="true">&darr;</span></a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>Sheets Video Store</footer>
+
+<script>
+(() => {
+  // ---------- dot flow: lines of dots pour from each side into the link box ----------
+  const canvas = document.getElementById('flow'), ctx = canvas.getContext('2d');
+  const hero = document.querySelector('.hero'), form = document.getElementById('form');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  let W = 0, H = 0, sides = [], flow = 0, pace = 1, targetPace = 1, last = 0;
+
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+  // play triangle and sheet grid, both as dot lattices around (0, 0)
+  function trianglePoints() {
+    const pts = [], w = 84, h = 98, s = 5.2;
+    for (let y = -h / 2; y <= h / 2; y += s)
+      for (let x = -w / 2; x <= w / 2; x += s)
+        if (Math.abs(y) <= (h / 2) * (1 - (x + w / 2) / w) + 0.01) pts.push([x, y]);
+    return pts;
+  }
+  function gridPoints() {
+    const pts = [], w = 114, h = 88, s = 4;
+    const xs = [-w / 2, -w / 6, w / 6, w / 2], ys = [-h / 2, -h / 6, h / 6, h / 2];
+    for (const y of ys) for (let x = -w / 2; x <= w / 2; x += s) pts.push([x, y]);
+    for (const x of xs) for (let y = -h / 2 + s; y < h / 2; y += s) if (!ys.some(v => Math.abs(v - y) < s / 2)) pts.push([x, y]);
+    return pts;
+  }
+  // pair every dot of one shape with a dot of the other, row by row, so the morph stays tidy
+  const SHAPE = (() => {
+    const byRow = (p, q) => p[1] - q[1] || p[0] - q[0];
+    const a = trianglePoints().sort(byRow), b = gridPoints().sort(byRow), n = Math.max(a.length, b.length);
+    return Array.from({ length: n }, (_, i) => {
+      const p = a[Math.floor(i * a.length / n)], q = b[Math.floor(i * b.length / n)], turn = Math.random() * 6.283;
+      return { ax: p[0], ay: p[1], bx: q[0], by: q[1], delay: 0.55 * i / n + 0.45 * Math.random(), jx: Math.cos(turn), jy: Math.sin(turn) };
+    });
+  })();
+
+  // a cubic curve resampled to one point per pixel of length, so dots can travel at an even speed
+  function trace(p0, p1, p2, p3) {
+    const raw = [], steps = 220;
+    let length = 0, px = p0[0], py = p0[1];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps, m = 1 - t;
+      const x = m * m * m * p0[0] + 3 * m * m * t * p1[0] + 3 * m * t * t * p2[0] + t * t * t * p3[0];
+      const y = m * m * m * p0[1] + 3 * m * m * t * p1[1] + 3 * m * t * t * p2[1] + t * t * t * p3[1];
+      length += Math.hypot(x - px, y - py); raw.push([x, y, length]); px = x; py = y;
+    }
+    const out = new Float32Array((Math.floor(length) + 1) * 2);
+    for (let d = 0, j = 1; d * 2 < out.length; d++) {
+      while (j < raw.length - 1 && raw[j][2] < d) j++;
+      const a = raw[j - 1], b = raw[j], f = (d - a[2]) / ((b[2] - a[2]) || 1);
+      out[d * 2] = a[0] + (b[0] - a[0]) * f; out[d * 2 + 1] = a[1] + (b[1] - a[1]) * f;
+    }
+    return out;
+  }
+
+  function buildSide(dir, tipX, tipY, room) {
+    const edge = dir < 0 ? -12 : W + 12;
+    const cy = tipY - clamp(H * 0.17, 80, 170);            // the shape and the fan sit a little above the box
+    const count = room > 260 ? 30 : 16, spread = Math.min(H * 0.95, 820);
+    const curves = [];
+    for (let i = 0; i < count; i++) {
+      const u = i / (count - 1) - 0.5;
+      curves.push({ u, pts: trace(
+        [edge, cy + u * spread],
+        [edge + (tipX - edge) * 0.52, cy + u * spread * 0.8],
+        [tipX - (tipX - edge) * 0.2, tipY + u * 22],
+        [tipX, tipY + u * 9]) });
+    }
+    const motes = Array.from({ length: room > 260 ? 34 : 12 }, () => ({
+      c: curves[Math.floor(Math.random() * curves.length)], d: Math.random(), v: 26 + Math.random() * 44, size: 2.2 + Math.random() * 2.2 }));
+    for (const m of motes) m.d *= m.c.pts.length / 2;
+    const inset = Math.max(62, room * 0.42);
+    return { dir, curves, motes, shape: room > 200 ? { x: dir < 0 ? inset : W - inset, y: cy } : null };
+  }
+
+  function layout() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), box = hero.getBoundingClientRect(), f = form.getBoundingClientRect();
+    W = box.width; H = box.height;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const room = f.left - box.left, tipY = f.top - box.top + f.height / 2;
+    sides = room < 90 ? [] : [buildSide(-1, f.left - box.left - 8, tipY, room), buildSide(1, f.right - box.left + 8, tipY, room)];
+    if (still.matches) draw(0, 0);
+  }
+
+  // 0 = triangle, 1 = grid: hold, morph, hold, morph back
+  function swap(ms) {
+    const p = (ms / 7400) % 1;
+    return p < 0.27 ? 0 : p < 0.5 ? (p - 0.27) / 0.23 : p < 0.77 ? 1 : 1 - (p - 0.77) / 0.23;
+  }
+
+  function draw(ms, dt) {
+    ctx.clearRect(0, 0, W, H);
+    const morph = swap(ms);
+    for (const side of sides) {
+      ctx.fillStyle = 'rgb(72,110,144)';
+      for (const c of side.curves) {
+        const n = c.pts.length / 2, gap = 7, weight = 0.4 + 0.6 * (1 - Math.abs(c.u) * 1.5);
+        for (let d = flow % gap; d < n; d += gap) {
+          const i = d | 0, k = d / n;
+          ctx.globalAlpha = (0.2 + 0.5 * k * k) * weight * Math.min(1, d / 60) * Math.min(1, (n - d) / 16);
+          ctx.fillRect(c.pts[i * 2] - 0.7, c.pts[i * 2 + 1] - 0.7, 1.45, 1.45);
+        }
+      }
+      ctx.fillStyle = 'rgb(52,92,128)';
+      for (const m of side.motes) {
+        const n = m.c.pts.length / 2;
+        m.d += m.v * dt * pace;
+        if (m.d >= n) { m.c = side.curves[Math.floor(Math.random() * side.curves.length)]; m.d = 0; }
+        const i = m.d | 0;
+        ctx.globalAlpha = Math.pow(Math.sin(Math.PI * m.d / n), 0.6) * 0.78;
+        ctx.fillRect(m.c.pts[i * 2] - m.size / 2, m.c.pts[i * 2 + 1] - m.size / 2, m.size, m.size);
+      }
+      if (side.shape) {                                     // left starts as triangle, right as grid; they trade places
+        const raw = side.dir < 0 ? morph : 1 - morph;
+        ctx.fillStyle = 'rgb(58,96,130)'; ctx.globalAlpha = 0.9;
+        for (const p of SHAPE) {
+          const e = ease(clamp(raw * 1.5 - p.delay * 0.5, 0, 1)), drift = Math.sin(Math.PI * e) * 9;
+          ctx.fillRect(side.shape.x + p.ax + (p.bx - p.ax) * e + p.jx * drift - 1,
+                       side.shape.y + p.ay + (p.by - p.ay) * e + p.jy * drift - 1, 2.1, 2.1);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    pace += (targetPace - pace) * Math.min(1, dt * 3);
+    flow += dt * 26 * pace;
+    draw(now, dt);
+    if (!still.matches) requestAnimationFrame(frame);
+  }
+  new ResizeObserver(layout).observe(hero);
+  layout();
+  const start = () => { last = performance.now(); still.matches ? draw(0, 0) : requestAnimationFrame(frame); };
+  still.addEventListener('change', start);
+  start();
+
+  // ---------- restore ----------
+  const input = document.getElementById('link'), go = document.getElementById('go'), goLabel = document.getElementById('go-label');
+  const status = document.getElementById('status'), result = document.getElementById('result'), media = document.getElementById('media');
+  const save = document.getElementById('save');
+  let objectUrl = null, ticker = 0;
+
+  function say(text, isError) { status.textContent = text; status.classList.toggle('error', !!isError); }
+  function busy(on) {
+    go.disabled = on; goLabel.textContent = on ? 'Restoring' : 'Restore'; targetPace = on ? 4 : 1;
+    clearInterval(ticker);
+    if (on) { const began = Date.now(); ticker = setInterval(() => say(`Restoring from Google Sheets · ${Math.round((Date.now() - began) / 1000)} s`), 1000); }
+  }
+  const hex = buffer => [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const link = input.value.trim();
+    if (!link || go.disabled) return;
+    busy(true); say('Restoring from Google Sheets');
+    try {
+      const response = await fetch('/api/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sheet: link }) });
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `The server answered ${response.status}`);
+      const bytes = await response.arrayBuffer();
+      const header = key => decodeURIComponent(response.headers.get('X-Sheetvid-' + key) || '');
+      const name = header('Name') || 'restored', mime = header('Mime'), expected = header('Sha256');
+      if (hex(await crypto.subtle.digest('SHA-256', bytes)) !== expected) throw new Error('The file arrived damaged: its SHA-256 does not match the one stored in the sheet.');
+
+      const kind = mime.startsWith('video/') ? 'video' : mime.startsWith('image/') ? 'img' : null;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = URL.createObjectURL(new Blob([bytes], { type: kind ? mime : 'application/octet-stream' }));
+      media.replaceChildren();
+      if (kind) {
+        const view = document.createElement(kind);
+        view.src = objectUrl;
+        if (kind === 'video') { view.controls = true; view.playsInline = true; } else view.alt = name;
+        media.append(view);
+      }
+      document.getElementById('name').textContent = name;
+      const facts = document.getElementById('facts');
+      facts.textContent = `${bytes.byteLength.toLocaleString()} bytes · ${header('Chunks')} chunks · `;
+      const ok = document.createElement('span'); ok.className = 'ok'; ok.textContent = 'SHA-256 verified'; ok.title = expected;
+      facts.append(ok);
+      save.href = objectUrl; save.download = name;
+      result.hidden = false;
+      say('Restored. Checked byte for byte.');
+      result.scrollIntoView({ behavior: still.matches ? 'auto' : 'smooth', block: 'nearest' });
+    } catch (error) {
+      say(error.message || 'Something went wrong.', true);
+    } finally {
+      busy(false);
+    }
+  });
+})();
+</script>
+</body>
+</html>

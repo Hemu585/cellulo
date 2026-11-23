@@ -32,6 +32,8 @@ Last updated: 23 Nov 2026.
 
 - [x] 10. Limit search (23 to 24 Nov 2026): 50, 70, 80, 90 and 99 MB round trips, hashes identical. 120 MB (reused spreadsheet) and 130 MB (fresh spreadsheet) both refused by Google at about 110 MB of file. Cap set to 100 MB.
 
+- [x] 11. Web page (`python web.py`, 24 Nov 2026): a real sheet link restored `sample.mp4` in the browser, it played (640x360, 12 s), and the browser's own SHA-256 matched. Wrong links, an unknown spreadsheet and an unfinished upload each gave a clear message. Checked at desktop and phone width. Reduced-motion mode and files over 1 MB were not tried through the page.
+
 Tests 5, 6 and 6b edited the spreadsheet through the API rather than by hand; the effect on the cells is the same. Timings are in [DESIGN.md](DESIGN.md).
 
 Not done: nobody has watched `restored.mp4` play or opened `restored.png` by eye. The byte-for-byte hash match makes a difference impossible, but it is a check by tool, not by eye.

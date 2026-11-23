@@ -83,6 +83,16 @@ Download stops, and writes nothing, if any of these is true:
 
 Chunks are placed by their number, not by row position, so sorting or moving rows in the sheet does no harm.
 
+## Web page
+
+`web.py` is a small local server (Python standard library) around the same `download` function; `web/index.html` is the page.
+
+- `POST /api/restore` with `{"sheet": "<link or ID>"}` returns the file bytes, with name, MIME type, SHA-256 and chunk count in `X-Sheetvid-*` headers.
+- The stored MIME type is not trusted: the bytes are always served as `application/octet-stream`, and the page shows them only in a `<video>` or `<img>` when the type starts with `video/` or `image/`.
+- The server binds to 127.0.0.1 and rejects requests whose `Host` is not this computer, because it acts with the owner's Google sign-in.
+- The page re-computes the SHA-256 with the browser's Web Crypto before showing anything.
+- An unfinished upload is refused before any chunk is read.
+
 ## Rate limits
 
 Every call runs with `execute(num_retries=6)`. The Google client library retries HTTP 429 and 5xx with randomised exponential backoff (up to about a minute on the last try), which is what Google's limits page asks for.

@@ -20,15 +20,20 @@ def split_chunks(text, size=CHUNK):
     return [text[i:i + size] for i in range(0, len(text), size)]
 
 
-def assemble(meta, rows):
-    """Rebuild the original bytes from sheet rows, or raise ValueError saying what is wrong."""
+def read_meta(meta):
+    """Return (chunk_count, byte_size), or raise ValueError if the upload never finished."""
     absent = [k for k in META_KEYS if meta.get(k) in (None, "")]
     if absent:
         raise ValueError(f"no complete upload found (meta is missing: {', '.join(absent)})")
     try:
-        count, size = int(meta["chunk_count"]), int(meta["byte_size"])
+        return int(meta["chunk_count"]), int(meta["byte_size"])
     except (TypeError, ValueError):
         raise ValueError("meta is corrupt: chunk_count and byte_size must be whole numbers")
+
+
+def assemble(meta, rows):
+    """Rebuild the original bytes from sheet rows, or raise ValueError saying what is wrong."""
+    count, size = read_meta(meta)
 
     chunks = {}
     for row in rows:
@@ -140,6 +145,7 @@ def download(svc, sheet_id):
         ).execute(num_retries=RETRIES).get("values", [])
 
     meta = {row[0]: row[1] for row in get("meta!A1:B5") if len(row) == 2}
+    read_meta(meta)  # refuse an unfinished upload before fetching what may be a hundred megabytes
     last = len(get("chunks!A2:A")) + 1  # sheet row of the last numbered chunk
     rows = []
     for start in range(2, last + 1, BATCH):

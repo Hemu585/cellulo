@@ -10,6 +10,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from sheetvid import BATCH, CHUNK, assemble, download, split_chunks, upload
+from web import sheet_id_from
 
 _range = range  # the fake's methods must take a parameter named `range`, like the real API
 
@@ -87,6 +88,23 @@ class FakeSheets:
         while rows and not rows[-1]:
             rows.pop()  # and trailing empty rows
         return self._call({"values": rows} if rows else {})
+
+
+class SheetLinkTest(unittest.TestCase):
+    ID = "1VDoRNz91qqdh1W4pg81RpIHJ4PpDkEoMclj87yBYDSQ"
+
+    def test_accepts_links_and_bare_ids(self):
+        for text in (
+            f"https://docs.google.com/spreadsheets/d/{self.ID}",
+            f"https://docs.google.com/spreadsheets/d/{self.ID}/edit?gid=0#gid=0",
+            f"  {self.ID}\n",
+        ):
+            self.assertEqual(sheet_id_from(text), self.ID)
+
+    def test_rejects_other_text(self):
+        for text in ("", "hello", "https://example.com/video.mp4", "../../etc"):
+            with self.assertRaisesRegex(ValueError, "Google Sheets link"):
+                sheet_id_from(text)
 
 
 class SplitTest(unittest.TestCase):
@@ -187,8 +205,9 @@ class RoundTripTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate chunk 2"):
             download(self.svc, self.sheet_id)
 
-    def test_interrupted_upload_is_rejected(self):
+    def test_interrupted_upload_is_rejected_without_reading_chunks(self):
         self.svc.tabs["meta"].clear()
+        self.svc.tabs["chunks"] = None  # any read of the chunks tab would now crash
         with self.assertRaisesRegex(ValueError, "no complete upload"):
             download(self.svc, self.sheet_id)
 
