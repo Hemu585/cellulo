@@ -114,6 +114,34 @@
   .meta .ok { color: #2f6b4f; }
   .meta .button { padding: 14px 24px; font-size: 1.05rem; }
 
+  [hidden] { display: none !important; }
+  .modes {
+    display: inline-flex; gap: 4px; margin-top: clamp(22px, 3.6vh, 34px); padding: 4px;
+    border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--paper) 80%, transparent);
+  }
+  .modes button {
+    padding: 8px 20px; border-radius: 999px; background: none; color: var(--muted);
+    font-family: var(--mono); font-size: 0.82rem; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .modes button:hover { background: rgba(52, 96, 138, 0.08); color: var(--ink); }
+  .modes button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .modes button[disabled] { cursor: progress; }
+  .field[data-drop] { border-color: var(--blue); border-style: dashed; }
+  .field .pick {
+    flex: 1; min-width: 0; justify-content: flex-start; padding: 10px 6px; border-radius: 6px;
+    background: none; color: #5f6a76; font-weight: 400; font-size: clamp(1rem, 1.4vw, 1.4rem);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .field .pick:hover { background: none; color: var(--ink); }
+  .field .pick.chosen { color: var(--ink); }
+  .share { display: inline-flex; align-items: center; gap: 10px; margin: 20px 0 0; font-size: 1rem; color: #3f4a57; cursor: pointer; }
+  .share input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); }
+  .meta .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ghost { padding: 14px 22px; background: none; color: var(--ink); border: 1px solid #b7bdc4; font-size: 1.05rem; }
+  .ghost:hover { background: rgba(52, 96, 138, 0.08); }
+  .meta .link-line { margin: 10px 0 0; font-family: var(--sans); font-size: 0.95rem; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
+  .link-line a { color: var(--blue); }
+
   footer { padding: 26px 20px 44px; text-align: center; font-family: var(--mono); font-size: 0.9rem; letter-spacing: 0.12em; color: var(--muted); }
 
   @media (max-width: 600px) {
@@ -141,25 +169,49 @@
     </svg>
     <span>Sheets Video Store</span>
   </div>
-  <span class="route">SHEETS &rarr; VIDEO</span>
+  <span class="route" id="route">SHEETS &rarr; VIDEO</span>
 </header>
 
 <main class="hero">
   <canvas id="flow" aria-hidden="true"></canvas>
   <div class="stack">
-    <p class="pill" style="--i:0"><i></i>A simpler way to get video back</p>
+    <p class="pill" style="--i:0"><i></i><span id="pill-text">A simpler way to get video back</span></p>
     <h1 style="--i:1">Your video.<br><em>One link</em> away.</h1>
-    <p class="lede" style="--i:2">Paste a Google Sheets link to restore it.</p>
-    <form class="field" id="form" style="--i:3">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+    <p class="lede" id="lede" style="--i:2">Paste a Google Sheets link to restore it.</p>
+    <div class="modes" role="group" aria-label="What to do" style="--i:3">
+      <button type="button" data-mode="restore" aria-pressed="true">Restore</button>
+      <button type="button" data-mode="upload" aria-pressed="false">Upload</button>
+    </div>
+    <form class="field" id="form" style="--i:4">
+      <svg id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
         <path d="M10.2 13.8a4 4 0 0 0 5.7 0l3.3-3.3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/>
         <path d="M13.8 10.2a4 4 0 0 0-5.7 0l-3.3 3.3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>
       </svg>
+      <svg id="icon-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+        <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/>
+        <path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>
+      </svg>
       <label class="sr-only" for="link">Google Sheets link</label>
-      <input id="link" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste your Google Sheets link here&hellip;" required>
+      <input id="link" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste your Google Sheets link here&hellip;">
+      <button type="button" class="pick" id="pick" hidden>Choose a video or image&hellip;</button>
+      <input id="file" type="file" accept="video/*,image/*" hidden>
       <button id="go" type="submit"><span id="go-label">Restore</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
     </form>
-    <p class="caption" id="status" role="status" style="--i:4">Paste a link. We&rsquo;ll take it from here.</p>
+    <label class="share" id="share-row" hidden><input type="checkbox" id="share" checked> Anyone with the link can restore it</label>
+    <p class="caption" id="status" role="status" style="--i:5">Paste a link. We&rsquo;ll take it from here.</p>
+    <section class="result" id="sent" aria-label="Uploaded file" hidden>
+      <div class="meta">
+        <div>
+          <h2 id="sent-name"></h2>
+          <p id="sent-facts"></p>
+          <p class="link-line"><a id="sent-link" target="_blank" rel="noopener"></a></p>
+        </div>
+        <div class="actions">
+          <button type="button" class="button" id="copy">Copy link</button>
+          <button type="button" class="ghost" id="try">Restore it <span class="arrow" aria-hidden="true">&rarr;</span></button>
+        </div>
+      </div>
+    </section>
     <section class="result" id="result" aria-label="Restored file" hidden>
       <div id="media"></div>
       <div class="meta">
@@ -320,13 +372,20 @@
   const input = document.getElementById('link'), go = document.getElementById('go'), goLabel = document.getElementById('go-label');
   const status = document.getElementById('status'), result = document.getElementById('result'), media = document.getElementById('media');
   const save = document.getElementById('save');
-  let objectUrl = null, ticker = 0, done = '';
+  const modeButtons = [...document.querySelectorAll('.modes button')];
+  let objectUrl = null, ticker = 0, done = '', mode = 'restore';
 
   function say(text, isError) { status.textContent = text; status.classList.toggle('error', !!isError); }
   function busy(on) {
-    go.disabled = on; goLabel.textContent = on ? 'Restoring' : 'Restore'; targetPace = on ? 4 : 1; done = '';
+    const up = mode === 'upload';
+    go.disabled = on; goLabel.textContent = on ? (up ? 'Uploading' : 'Restoring') : (up ? 'Upload' : 'Restore');
+    for (const button of modeButtons) button.disabled = on;
+    targetPace = on ? 4 : 1; done = '';
     clearInterval(ticker);
-    if (on) { const began = Date.now(); ticker = setInterval(() => say(`Restoring from Google Sheets${done} · ${Math.round((Date.now() - began) / 1000)} s`), 1000); }
+    if (on) {
+      const began = Date.now(), what = up ? 'Uploading to Google Sheets' : 'Restoring from Google Sheets';
+      ticker = setInterval(() => say(`${what}${done} · ${Math.round((Date.now() - began) / 1000)} s`), 1000);
+    }
   }
   const hex = buffer => [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('');
 
@@ -336,7 +395,7 @@
   const API_KEY = 'AIzaSyC8xLVjqbHoC66LFp6Y046lEPdi1dgorUc';   // browser key, locked to the Sheets API and this site's address, so it is safe to ship in the page
   const META_KEYS = ['filename', 'mime_type', 'byte_size', 'chunk_count', 'sha256'];
   const ROWS_PER_CALL = 100;   // about 4 MB per response, well inside 60 reads a minute even at 100 MB
-  if (!LOCAL) say('The sheet must be shared: anyone with the link.');
+  const backoff = attempt => new Promise(wake => setTimeout(wake, Math.min(32000, 1000 * 2 ** attempt) + Math.random() * 1000));
 
   function sheetIdFrom(text) {
     const match = text.match(/\/spreadsheets\/d\/([\w-]+)/);
@@ -351,10 +410,7 @@
     for (let attempt = 0; ; attempt++) {
       const response = await fetch(url);
       if (response.ok) return (await response.json()).values || [];
-      if ((response.status === 429 || response.status >= 500) && attempt < 6) {   // Google asks for backoff on quota errors
-        await new Promise(wake => setTimeout(wake, Math.min(32000, 1000 * 2 ** attempt) + Math.random() * 1000));
-        continue;
-      }
+      if ((response.status === 429 || response.status >= 500) && attempt < 6) { await backoff(attempt); continue; }   // Google asks for backoff on quota errors
       const detail = String((await response.json().catch(() => ({}))).error?.message || '');
       if (response.status === 403 && /caller does not have permission/i.test(detail))   // a blocked site says "Permission denied on the service"
         throw new Error('This sheet is not shared. In Google Sheets choose Share, then General access: Anyone with the link, Viewer.');
@@ -417,10 +473,171 @@
     return { bytes: await response.arrayBuffer(), name: header('Name'), mime: header('Mime'), expected: header('Sha256'), chunks: header('Chunks') };
   }
 
+  // ---------- upload: the visitor signs in with their own Google account, and the file goes into their own Drive ----------
+  const CLIENT_ID = '823029525535-7kf4gjnmml0jlq6g3646dodolvp9sfdn.apps.googleusercontent.com';
+  const SCOPE = 'https://www.googleapis.com/auth/drive.file';   // only files this site creates; nothing else in their Drive
+  const MAX_BYTES = 100e6, BYTES_PER_CHUNK = 30000, ROWS_PER_WRITE = 25;   // as sheetvid.py: 40,000 characters a cell, ~1 MB a call
+  const fileInput = document.getElementById('file'), pick = document.getElementById('pick'), shareRow = document.getElementById('share-row');
+  const sent = document.getElementById('sent'), sentLink = document.getElementById('sent-link');
+  let chosen = null, gis = null, tokenClient = null, pending = null, token = null;
+
+  const COPY = {
+    restore: { route: 'SHEETS → VIDEO', pill: 'A simpler way to get video back', lede: 'Paste a Google Sheets link to restore it.', go: 'Restore',
+               hint: LOCAL ? 'Paste a link. We’ll take it from here.' : 'The sheet must be shared: anyone with the link.' },
+    upload:  { route: 'VIDEO → SHEETS', pill: 'A simpler way to save video', lede: 'Store a video or image in your own Google Sheets.', go: 'Upload',
+               hint: 'Sign in with your own Google account. The file stays in your Drive.' },
+  };
+  function setMode(next) {
+    mode = next;
+    const up = mode === 'upload', copy = COPY[mode];
+    for (const button of modeButtons) button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+    document.getElementById('route').textContent = copy.route;
+    document.getElementById('pill-text').textContent = copy.pill;
+    document.getElementById('lede').textContent = copy.lede;
+    goLabel.textContent = copy.go;
+    input.hidden = up; pick.hidden = !up; shareRow.hidden = !up;
+    // SVG elements have no .hidden property, so set the attribute
+    document.getElementById('icon-link').toggleAttribute('hidden', up); document.getElementById('icon-up').toggleAttribute('hidden', !up);
+    result.hidden = true; sent.hidden = true;
+    say(copy.hint);
+    if (up) loadGis().catch(error => say(error.message, true));
+  }
+  for (const button of modeButtons) button.addEventListener('click', () => setMode(button.dataset.mode));
+
+  function choose(file) {
+    chosen = file || null;
+    pick.textContent = chosen ? `${chosen.name} · ${(chosen.size / 1e6).toFixed(chosen.size < 1e6 ? 2 : 1)} MB` : 'Choose a video or image…';
+    pick.classList.toggle('chosen', !!chosen);
+  }
+  pick.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => choose(fileInput.files[0]));
+  form.addEventListener('dragover', event => { if (mode !== 'upload') return; event.preventDefault(); form.dataset.drop = ''; });
+  form.addEventListener('dragleave', () => delete form.dataset.drop);
+  form.addEventListener('drop', event => {
+    if (mode !== 'upload') return;
+    event.preventDefault(); delete form.dataset.drop; choose(event.dataTransfer.files[0]);
+  });
+
+  function loadGis() {
+    gis = gis || new Promise((ok, fail) => {
+      const script = Object.assign(document.createElement('script'), { src: 'https://accounts.google.com/gsi/client', async: true });
+      script.onload = ok;
+      script.onerror = () => { gis = null; fail(new Error('Could not load Google sign-in. Check the connection and try again.')); };
+      document.head.append(script);
+    });
+    return gis;
+  }
+
+  // must start inside the click itself, or the browser blocks Google's sign-in window
+  function signIn() {
+    if (token && token.expires > Date.now() + 60000) return Promise.resolve(token.value);
+    const oauth = window.google?.accounts?.oauth2;
+    if (!oauth) return Promise.reject(new Error('Google sign-in is still loading. Try again in a moment.'));
+    tokenClient = tokenClient || oauth.initTokenClient({
+      client_id: CLIENT_ID, scope: SCOPE,
+      callback: reply => {
+        if (reply.error || !oauth.hasGrantedAllScopes(reply, SCOPE)) return pending.fail(new Error('Google did not give this site access, so nothing was uploaded.'));
+        token = { value: reply.access_token, expires: Date.now() + Number(reply.expires_in) * 1000 };
+        pending.ok(token.value);
+      },
+      error_callback: problem => pending.fail(new Error(
+        problem.type === 'popup_closed' ? 'The Google sign-in window was closed, so nothing was uploaded.'
+        : problem.type === 'popup_failed_to_open' ? 'The browser blocked the Google sign-in window. Allow pop-ups for this site and try again.'
+        : 'Google sign-in failed, so nothing was uploaded.')),
+    });
+    return new Promise((ok, fail) => { pending = { ok, fail }; tokenClient.requestAccessToken(); });
+  }
+
+  async function googleCall(method, url, body, accessToken) {
+    for (let attempt = 0; ; attempt++) {
+      const response = await fetch(url, { method, headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (response.ok) return response.json();
+      if ((response.status === 429 || response.status >= 500) && attempt < 6) { await backoff(attempt); continue; }
+      if (response.status === 401) { token = null; throw new Error('Your Google sign-in expired. Press Upload again to sign in.'); }
+      const detail = String((await response.json().catch(() => ({}))).error?.message || '');
+      throw new Error(`Google answered ${response.status}${detail ? ': ' + detail : ''}.`);
+    }
+  }
+
+  function encodeChunk(part) {
+    let binary = '';
+    for (let i = 0; i < part.length; i += 0x8000) binary += String.fromCharCode.apply(null, part.subarray(i, i + 0x8000));
+    return btoa(binary);
+  }
+
+  // same order as upload() in sheetvid.py: chunks first and meta last, so a cut-off upload is never taken for a whole one
+  async function uploadFile(file, share, accessToken) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const sha256 = hex(await crypto.subtle.digest('SHA-256', bytes));
+    const rows = [['chunk', 'data']];
+    for (let at = 0; at < bytes.length; at += BYTES_PER_CHUNK) rows.push([rows.length, encodeChunk(bytes.subarray(at, at + BYTES_PER_CHUNK))]);
+    const sheets = 'https://sheets.googleapis.com/v4/spreadsheets';
+    const { spreadsheetId: id } = await googleCall('POST', sheets, {
+      properties: { title: `sheetvid - ${file.name}` },
+      sheets: [{ properties: { title: 'meta' } }, { properties: { title: 'chunks', gridProperties: { rowCount: Math.max(1000, rows.length) } } }],
+    }, accessToken);
+    // RAW: Sheets must never read a chunk starting with + or = as a formula
+    const write = (cell, values) => googleCall('PUT', `${sheets}/${id}/values/${encodeURIComponent(cell)}?valueInputOption=RAW`, { values }, accessToken);
+    for (let start = 0; start < rows.length; start += ROWS_PER_WRITE) {
+      await write(`chunks!A${start + 1}`, rows.slice(start, start + ROWS_PER_WRITE));
+      done = ` · ${Math.round(100 * Math.min(rows.length, start + ROWS_PER_WRITE) / rows.length)}%`;
+    }
+    await write('meta!A1', [['filename', file.name], ['mime_type', file.type || 'application/octet-stream'],
+                            ['byte_size', bytes.length], ['chunk_count', rows.length - 1], ['sha256', sha256]]);
+    let shareError = '';
+    if (share) {
+      try { await googleCall('POST', `https://www.googleapis.com/drive/v3/files/${id}/permissions`, { type: 'anyone', role: 'reader' }, accessToken); }
+      catch (error) { shareError = error.message; }
+    }
+    return { id, size: bytes.length, count: rows.length - 1, shared: share && !shareError, shareError };
+  }
+
+  function startUpload() {
+    if (!chosen) return say('Choose a video or image first.', true);
+    if (!chosen.size) return say('That file is empty.', true);
+    if (chosen.size > MAX_BYTES)
+      return say(`That file is ${(chosen.size / 1e6).toFixed(1)} MB. The limit is 100 MB, because a Google spreadsheet fills up at about 110 MB.`, true);
+    const file = chosen, share = document.getElementById('share').checked;
+    const access = signIn();   // before any await, so the sign-in window counts as part of this click
+    busy(true); say('Waiting for Google sign-in');
+    (async () => {
+      try {
+        const upload = await uploadFile(file, share, await access);
+        const link = `https://docs.google.com/spreadsheets/d/${upload.id}`;
+        document.getElementById('sent-name').textContent = file.name;
+        document.getElementById('sent-facts').textContent =
+          `${upload.size.toLocaleString()} bytes · ${upload.count} chunks · ${upload.shared ? 'anyone with the link' : 'private to you'}`;
+        sentLink.href = link; sentLink.textContent = link;
+        sent.hidden = false;
+        say(upload.shareError ? `Uploaded, but sharing failed: ${upload.shareError}`
+            : upload.shared ? 'Uploaded. Send the link to anyone.' : 'Uploaded. The sheet is private to you.', !!upload.shareError);
+        sent.scrollIntoView({ behavior: still.matches ? 'auto' : 'smooth', block: 'nearest' });
+      } catch (error) {
+        say(error.message || 'Something went wrong.', true);
+      } finally {
+        busy(false);
+      }
+    })();
+  }
+
+  document.getElementById('copy').addEventListener('click', async event => {
+    const button = event.currentTarget;
+    try { await navigator.clipboard.writeText(sentLink.href); button.textContent = 'Copied'; }
+    catch { button.textContent = 'Copy failed'; }
+    setTimeout(() => { button.textContent = 'Copy link'; }, 1600);
+  });
+  document.getElementById('try').addEventListener('click', () => {
+    const link = sentLink.href;
+    setMode('restore'); input.value = link; form.requestSubmit();
+  });
+  setMode('restore');
+
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    if (go.disabled) return;
+    if (mode === 'upload') return startUpload();
     const link = input.value.trim();
-    if (!link || go.disabled) return;
+    if (!link) return say('Paste a Google Sheets link first.', true);
     busy(true); say('Restoring from Google Sheets');
     try {
       const file = await (LOCAL ? readLocal(link) : readPublicSheet(link));

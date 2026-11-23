@@ -46,11 +46,15 @@ One file per spreadsheet. Images work the same way as videos.
 
 ## Hosted page
 
-<https://sheets-video-store.vercel.app> restores from a sheet that is shared publicly. Anyone you send the sheet link to can use it; nothing to install.
+<https://sheets-video-store.vercel.app> uploads and restores in the browser; nothing to install.
 
-1. Upload with `sheetvid.py` as usual.
-2. Open the spreadsheet in Google Sheets, choose **Share**, set **General access** to **Anyone with the link**, role **Viewer**.
-3. Paste the sheet link into the page.
+**Upload:** choose **Upload**, pick a video or image (or drop it on the box), press **Upload** and sign in with your own Google account. The file goes into a new spreadsheet in your own Google Drive. With **Anyone with the link can restore it** ticked (the default), the page then shows a link you can send to anyone.
+
+- The site asks only for access to files it creates itself, not the rest of your Drive.
+- Limit 100 MB.
+- While the Google app is in Testing, only test users can sign in. Add people under Google Auth Platform, Audience, Test users in the `sheetvid-poc` project.
+
+**Restore:** paste the sheet link. This works for sheets shared as **Anyone with the link** (Viewer); sheets uploaded with `sheetvid.py` must be shared by hand in Google Sheets first.
 
 - The browser reads the cells straight from Google; no server is involved, so there is no size limit beyond the tool's 100 MB.
 - Private sheets are refused with a message saying how to share them.

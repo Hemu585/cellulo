@@ -36,6 +36,8 @@ Last updated: 23 Nov 2026.
 
 - [x] 12. Hosted page (24 Nov 2026) at https://sheets-video-store.vercel.app: a publicly shared test sheet (`sheetvid - public-demo.mp4`, the colour-bar clip) restored and played, SHA-256 verified in the browser. A private sheet was refused with the sharing instructions. The API key works from the site and is refused from another site and with no referrer. Files over 1 MB were not tried through the hosted page.
 
+- [ ] 13. Upload from the website (24 Nov 2026). Checked: mode switch, file picker, share box, and the message when the sign-in window is blocked. Not yet done: a real upload, because the browser pane blocks Google's sign-in window unless the owner clicks it.
+
 Tests 5, 6 and 6b edited the spreadsheet through the API rather than by hand; the effect on the cells is the same. Timings are in [DESIGN.md](DESIGN.md).
 
 Not done: nobody has watched `restored.mp4` play or opened `restored.png` by eye. The byte-for-byte hash match makes a difference impossible, but it is a check by tool, not by eye.

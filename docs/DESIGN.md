@@ -103,6 +103,14 @@ The same `web/index.html` is deployed as a static site to <https://sheets-video-
 - API key `sheetvid-web` in Cloud project `sheetvid-poc`: restricted to the Google Sheets API and to `https://sheets-video-store.vercel.app/*`. Checked: allowed from the site, 403 from another site or with no referrer.
 - Reads 100 rows (about 4 MB) per request and backs off on HTTP 429, so 100 MB takes about 34 reads.
 
+### Upload in the browser
+
+- The visitor signs in with their own Google account through Google Identity Services (token popup, OAuth client `sheetvid-web` in `sheetvid-poc`, allowed origins: the Vercel site, `http://localhost:8765`, `http://127.0.0.1:8765`). Scope `drive.file`. The owner chose this on 24 Nov 2026: each user uploads into their own Drive.
+- Same layout and order as `sheetvid.py`: create the spreadsheet (the `chunks` tab is created with enough rows), write chunks 25 rows per call with RAW, write `meta` last.
+- If the share box is ticked, a Drive API call then gives "anyone with the link" reader access. The Google Drive API is enabled in `sheetvid-poc` for this.
+- The sign-in window has to open from the click itself, so the page asks for the token before any other await.
+- The app is in Testing: only listed test users can sign in. Letting anyone sign in means publishing the app in Google Auth Platform, which may need a privacy policy and brand verification.
+
 ## Rate limits
 
 Every call runs with `execute(num_retries=6)`. The Google client library retries HTTP 429 and 5xx with randomised exponential backoff (up to about a minute on the last try), which is what Google's limits page asks for.
