@@ -93,6 +93,16 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 - The page re-computes the SHA-256 with the browser's Web Crypto before showing anything.
 - An unfinished upload is refused before any chunk is read.
 
+### Hosted on Vercel
+
+The same `web/index.html` is deployed as a static site to <https://sheets-video-store.vercel.app> (Vercel project `sheets-video-store`, linked in `web/`).
+
+- When the page is not on `127.0.0.1` or `localhost`, it reads the sheet itself, in the browser, through the Sheets API with an API key, and applies the same checks as `assemble()`.
+- This only works for sheets shared as "anyone with the link". That was the owner's choice on 24 Nov 2026, over putting their Google sign-in on a public server.
+- Why not a Vercel function: function responses are capped at 4.5 MB, and the owner's sign-in would let any visitor restore any sheet the tool made.
+- API key `sheetvid-web` in Cloud project `sheetvid-poc`: restricted to the Google Sheets API and to `https://sheets-video-store.vercel.app/*`. Checked: allowed from the site, 403 from another site or with no referrer.
+- Reads 100 rows (about 4 MB) per request and backs off on HTTP 429, so 100 MB takes about 34 reads.
+
 ## Rate limits
 
 Every call runs with `execute(num_retries=6)`. The Google client library retries HTTP 429 and 5xx with randomised exponential backoff (up to about a minute on the last try), which is what Google's limits page asks for.
@@ -139,7 +149,6 @@ The earlier guess that a 25 MB spreadsheet would be heavy in the browser was wro
 ## Not built
 
 - Files over 100 MB (would need the file split across several spreadsheets).
-- A way for someone you share the spreadsheet with to download the file. The tool only opens spreadsheets it created under your own sign-in.
 - Several files in one spreadsheet.
 - Resuming an interrupted upload.
 - Compression, a web interface, service-account sign-in.

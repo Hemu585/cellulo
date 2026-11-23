@@ -44,9 +44,24 @@ Options:
 
 One file per spreadsheet. Images work the same way as videos.
 
-## Web page
+## Hosted page
 
-A page for restoring by link, with nothing to type in a terminal after it starts:
+<https://sheets-video-store.vercel.app> restores from a sheet that is shared publicly. Anyone you send the sheet link to can use it; nothing to install.
+
+1. Upload with `sheetvid.py` as usual.
+2. Open the spreadsheet in Google Sheets, choose **Share**, set **General access** to **Anyone with the link**, role **Viewer**.
+3. Paste the sheet link into the page.
+
+- The browser reads the cells straight from Google; no server is involved, so there is no size limit beyond the tool's 100 MB.
+- Private sheets are refused with a message saying how to share them.
+- Anyone who has a shared sheet's link can get its file. Set sharing back to **Restricted** to stop that.
+- The page carries a public Google API key. It only works for the Google Sheets API and only from this site's address.
+
+Deploy a change: `vercel deploy --prod --cwd web`.
+
+## Local page
+
+A page for restoring by link, including private sheets, with nothing to type in a terminal after it starts:
 
 ```powershell
 python web.py
@@ -55,7 +70,7 @@ python web.py
 Open <http://127.0.0.1:8765>, paste a Google Sheets link (or just the spreadsheet ID) and press **Restore**. The video or image appears on the page with a Download button. The page re-computes the SHA-256 in your browser and only shows the file if it matches.
 
 - It signs in as you, with the same credentials as the commands above, so it opens the same spreadsheets: the ones this tool created.
-- It listens on this computer only. It is not a way to share with other people.
+- It listens on this computer only. For sharing, use the hosted page above.
 - Large files show a running timer but no progress bar; 100 MB takes over two minutes.
 - The moving dot graphics need a wide window. On a phone-width screen the page works but the graphics are hidden.
 
@@ -74,7 +89,7 @@ Measured on 23 Nov 2026, one run each. Every restored file matched by SHA-256.
 
 The cap is 100 MB. Google refuses a spreadsheet at about 110 MB of file ("This document is too large to continue editing"), and a spreadsheet that reaches that point accepts no further edits.
 
-Sharing the spreadsheet does not let the other person download the file: the tool only opens spreadsheets it created under your own sign-in.
+To let someone else download a file, share its spreadsheet publicly and send them the link with the hosted page (below).
 
 ## Tests
 

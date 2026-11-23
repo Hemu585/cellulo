@@ -320,15 +320,102 @@
   const input = document.getElementById('link'), go = document.getElementById('go'), goLabel = document.getElementById('go-label');
   const status = document.getElementById('status'), result = document.getElementById('result'), media = document.getElementById('media');
   const save = document.getElementById('save');
-  let objectUrl = null, ticker = 0;
+  let objectUrl = null, ticker = 0, done = '';
 
   function say(text, isError) { status.textContent = text; status.classList.toggle('error', !!isError); }
   function busy(on) {
-    go.disabled = on; goLabel.textContent = on ? 'Restoring' : 'Restore'; targetPace = on ? 4 : 1;
+    go.disabled = on; goLabel.textContent = on ? 'Restoring' : 'Restore'; targetPace = on ? 4 : 1; done = '';
     clearInterval(ticker);
-    if (on) { const began = Date.now(); ticker = setInterval(() => say(`Restoring from Google Sheets · ${Math.round((Date.now() - began) / 1000)} s`), 1000); }
+    if (on) { const began = Date.now(); ticker = setInterval(() => say(`Restoring from Google Sheets${done} · ${Math.round((Date.now() - began) / 1000)} s`), 1000); }
   }
   const hex = buffer => [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+
+  // Two ways to read a sheet. On this computer (python web.py) the local server reads it with the owner's sign-in.
+  // Hosted, the browser reads a sheet shared as "anyone with the link" straight from Google with a public API key.
+  const LOCAL = ['127.0.0.1', 'localhost'].includes(location.hostname);
+  const API_KEY = 'AIzaSyC8xLVjqbHoC66LFp6Y046lEPdi1dgorUc';   // browser key, locked to the Sheets API and this site's address, so it is safe to ship in the page
+  const META_KEYS = ['filename', 'mime_type', 'byte_size', 'chunk_count', 'sha256'];
+  const ROWS_PER_CALL = 100;   // about 4 MB per response, well inside 60 reads a minute even at 100 MB
+  if (!LOCAL) say('The sheet must be shared: anyone with the link.');
+
+  function sheetIdFrom(text) {
+    const match = text.match(/\/spreadsheets\/d\/([\w-]+)/);
+    if (match) return match[1];
+    if (/^[\w-]{20,}$/.test(text)) return text;
+    throw new Error('That does not look like a Google Sheets link.');
+  }
+
+  async function sheetGet(id, range) {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values/${encodeURIComponent(range)}`
+              + `?valueRenderOption=UNFORMATTED_VALUE&key=${API_KEY}`;
+    for (let attempt = 0; ; attempt++) {
+      const response = await fetch(url);
+      if (response.ok) return (await response.json()).values || [];
+      if ((response.status === 429 || response.status >= 500) && attempt < 6) {   // Google asks for backoff on quota errors
+        await new Promise(wake => setTimeout(wake, Math.min(32000, 1000 * 2 ** attempt) + Math.random() * 1000));
+        continue;
+      }
+      const detail = String((await response.json().catch(() => ({}))).error?.message || '');
+      if (response.status === 403 && /caller does not have permission/i.test(detail))   // a blocked site says "Permission denied on the service"
+        throw new Error('This sheet is not shared. In Google Sheets choose Share, then General access: Anyone with the link, Viewer.');
+      if (response.status === 404) throw new Error('No spreadsheet found at that link.');
+      if (/Unable to parse range/i.test(detail)) throw new Error('That spreadsheet was not made by Sheets Video Store.');
+      throw new Error(`Google Sheets answered ${response.status}${detail ? ': ' + detail : ''}.`);
+    }
+  }
+
+  // each 40,000-character chunk is whole Base64 groups, so chunks decode one at a time
+  function decodeChunk(text, n) {
+    if (text.length % 4 || !/^[A-Za-z0-9+/]*={0,2}$/.test(text)) throw new Error(`Chunk ${n} is not valid Base64.`);
+    const binary = atob(text), out = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
+    return out;
+  }
+
+  // the same checks as assemble() in sheetvid.py
+  async function readPublicSheet(link) {
+    if (!API_KEY) throw new Error('This site has no Google API key configured yet.');
+    const id = sheetIdFrom(link);
+    const meta = Object.fromEntries((await sheetGet(id, 'meta!A1:B5')).filter(row => row.length === 2));
+    const absent = META_KEYS.filter(key => meta[key] === undefined || meta[key] === '');
+    if (absent.length) throw new Error(`No complete upload found (meta is missing: ${absent.join(', ')}).`);
+    const count = Number(meta.chunk_count), size = Number(meta.byte_size);
+    if (!Number.isInteger(count) || !Number.isInteger(size) || count < 1 || size > 150e6)
+      throw new Error('The sheet is corrupt: chunk_count and byte_size must be sensible whole numbers.');
+
+    const last = (await sheetGet(id, 'chunks!A2:A')).length + 1;   // sheet row of the last numbered chunk
+    const pieces = new Map();
+    for (let start = 2; start <= last; start += ROWS_PER_CALL) {
+      for (const row of await sheetGet(id, `chunks!A${start}:B${Math.min(start + ROWS_PER_CALL - 1, last)}`)) {
+        if (!row.some(cell => cell !== '')) continue;
+        const n = row[0];
+        if (typeof n !== 'number' || !Number.isInteger(n)) throw new Error(`Invalid chunk number: ${JSON.stringify(n)}.`);
+        if (pieces.has(n)) throw new Error(`Duplicate chunk ${n}.`);
+        if (typeof row[1] !== 'string' || !row[1]) throw new Error(`Chunk ${n} has no data.`);
+        pieces.set(n, decodeChunk(row[1], n));
+      }
+      done = ` · ${Math.min(100, Math.round(100 * (start + ROWS_PER_CALL - 2) / Math.max(1, last - 1)))}%`;
+    }
+    const missing = [], extra = [...pieces.keys()].filter(n => n < 1 || n > count).sort((a, b) => a - b);
+    for (let n = 1; n <= count; n++) if (!pieces.has(n)) missing.push(n);
+    if (missing.length) throw new Error(`Missing chunks (${missing.length} of ${count}): ${missing.slice(0, 10).join(', ')}.`);
+    if (extra.length) throw new Error(`Unexpected chunks beyond ${count}: ${extra.slice(0, 10).join(', ')}.`);
+
+    let total = 0;
+    for (let n = 1; n <= count; n++) total += pieces.get(n).length;
+    if (total !== size) throw new Error(`Size mismatch: restored ${total} bytes, expected ${size}.`);
+    const bytes = new Uint8Array(total);
+    for (let n = 1, at = 0; n <= count; at += pieces.get(n).length, n++) bytes.set(pieces.get(n), at);
+    return { bytes: bytes.buffer, name: String(meta.filename).split(/[\\/]/).pop(), mime: String(meta.mime_type),
+             expected: String(meta.sha256), chunks: count };
+  }
+
+  async function readLocal(link) {
+    const response = await fetch('/api/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sheet: link }) });
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `The server answered ${response.status}`);
+    const header = key => decodeURIComponent(response.headers.get('X-Sheetvid-' + key) || '');
+    return { bytes: await response.arrayBuffer(), name: header('Name'), mime: header('Mime'), expected: header('Sha256'), chunks: header('Chunks') };
+  }
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -336,11 +423,8 @@
     if (!link || go.disabled) return;
     busy(true); say('Restoring from Google Sheets');
     try {
-      const response = await fetch('/api/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sheet: link }) });
-      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `The server answered ${response.status}`);
-      const bytes = await response.arrayBuffer();
-      const header = key => decodeURIComponent(response.headers.get('X-Sheetvid-' + key) || '');
-      const name = header('Name') || 'restored', mime = header('Mime'), expected = header('Sha256');
+      const file = await (LOCAL ? readLocal(link) : readPublicSheet(link));
+      const { bytes, mime, expected } = file, name = file.name || 'restored';
       if (hex(await crypto.subtle.digest('SHA-256', bytes)) !== expected) throw new Error('The file arrived damaged: its SHA-256 does not match the one stored in the sheet.');
 
       const kind = mime.startsWith('video/') ? 'video' : mime.startsWith('image/') ? 'img' : null;
@@ -355,7 +439,7 @@
       }
       document.getElementById('name').textContent = name;
       const facts = document.getElementById('facts');
-      facts.textContent = `${bytes.byteLength.toLocaleString()} bytes · ${header('Chunks')} chunks · `;
+      facts.textContent = `${bytes.byteLength.toLocaleString()} bytes · ${file.chunks} chunks · `;
       const ok = document.createElement('span'); ok.className = 'ok'; ok.textContent = 'SHA-256 verified'; ok.title = expected;
       facts.append(ok);
       save.href = objectUrl; save.download = name;
