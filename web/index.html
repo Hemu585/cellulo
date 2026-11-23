@@ -177,11 +177,12 @@
 
 <script>
 (() => {
-  // ---------- dot flow: lines of dots pour from each side into the link box ----------
+  // ---------- flow: dotted curves pour from both edges into the link box ----------
   const canvas = document.getElementById('flow'), ctx = canvas.getContext('2d');
   const hero = document.querySelector('.hero'), form = document.getElementById('form');
   const still = matchMedia('(prefers-reduced-motion: reduce)');
-  let W = 0, H = 0, sides = [], flow = 0, pace = 1, targetPace = 1, last = 0;
+  const LINE = 'rgba(40, 64, 92, 0.4)', MOTE = 'rgba(40, 64, 92, 0.75)', SHAPE_INK = 'rgba(52, 92, 128, 0.95)', PAPER = '250, 248, 243';
+  let W = 0, H = 0, sides = [], paths = [], booms = [], pace = 1, targetPace = 1, last = 0;
 
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -211,43 +212,24 @@
     });
   })();
 
-  // a cubic curve resampled to one point per pixel of length, so dots can travel at an even speed
-  function trace(p0, p1, p2, p3) {
-    const raw = [], steps = 220;
-    let length = 0, px = p0[0], py = p0[1];
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps, m = 1 - t;
-      const x = m * m * m * p0[0] + 3 * m * m * t * p1[0] + 3 * m * t * t * p2[0] + t * t * t * p3[0];
-      const y = m * m * m * p0[1] + 3 * m * m * t * p1[1] + 3 * m * t * t * p2[1] + t * t * t * p3[1];
-      length += Math.hypot(x - px, y - py); raw.push([x, y, length]); px = x; py = y;
-    }
-    const out = new Float32Array((Math.floor(length) + 1) * 2);
-    for (let d = 0, j = 1; d * 2 < out.length; d++) {
-      while (j < raw.length - 1 && raw[j][2] < d) j++;
-      const a = raw[j - 1], b = raw[j], f = (d - a[2]) / ((b[2] - a[2]) || 1);
-      out[d * 2] = a[0] + (b[0] - a[0]) * f; out[d * 2 + 1] = a[1] + (b[1] - a[1]) * f;
-    }
-    return out;
+  // Gateway Flow, light mode: 80 dotted cubic curves, alternating sides, one mote riding each.
+  // Changed from the original: the curves end just inside the link box instead of at the screen centre.
+  const PATHS = 80;
+  function makePaths(old, centre) {
+    return Array.from({ length: PATHS }, (_, i) => {
+      const base = centre + (i / PATHS - 0.5) * H * 1.4, prev = old[i];   // spread evenly around where the curves meet
+      return { left: i % 2 === 0, base, startY: base, t: prev ? prev.t : Math.random(),
+               speed: prev ? prev.speed : (0.0015 + Math.random() * 0.002) * 60 };   // original speeds were per frame at 60 fps
+    });
   }
-
-  function buildSide(dir, tipX, tipY, room) {
-    const edge = dir < 0 ? -12 : W + 12;
-    const cy = tipY - clamp(H * 0.17, 80, 170);            // the shape and the fan sit a little above the box
-    const count = room > 260 ? 30 : 16, spread = Math.min(H * 0.95, 820);
-    const curves = [];
-    for (let i = 0; i < count; i++) {
-      const u = i / (count - 1) - 0.5;
-      curves.push({ u, pts: trace(
-        [edge, cy + u * spread],
-        [edge + (tipX - edge) * 0.52, cy + u * spread * 0.8],
-        [tipX - (tipX - edge) * 0.2, tipY + u * 22],
-        [tipX, tipY + u * 9]) });
-    }
-    const motes = Array.from({ length: room > 260 ? 34 : 12 }, () => ({
-      c: curves[Math.floor(Math.random() * curves.length)], d: Math.random(), v: 26 + Math.random() * 44, size: 2.2 + Math.random() * 2.2 }));
-    for (const m of motes) m.d *= m.c.pts.length / 2;
-    const inset = room * 0.42, scale = clamp(room / 300, 0.5, 1);
-    return { dir, curves, motes, shape: room > 120 ? { x: dir < 0 ? inset : W - inset, y: cy, scale } : null };
+  // edge -> halfway, still at the start height -> 80%, at the box height -> just inside the box
+  function curve(p) {
+    const s = p.left ? sides[0] : sides[1], at = f => s.edge + s.dir * s.span * f;
+    return [at(0), p.startY, at(0.5), p.startY, at(0.8), s.y, at(1), s.y];
+  }
+  function bezier(t, c) {
+    const u = 1 - t, a = u * u * u, b = 3 * u * u * t, d = 3 * u * t * t, e = t * t * t;
+    return [a * c[0] + b * c[2] + d * c[4] + e * c[6], a * c[1] + b * c[3] + d * c[5] + e * c[7]];
   }
 
   function layout() {
@@ -255,8 +237,15 @@
     W = box.width; H = box.height;
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const room = f.left - box.left, tipY = f.top - box.top + f.height / 2;
-    sides = room < 90 ? [] : [buildSide(-1, f.left - box.left - 8, tipY, room), buildSide(1, f.right - box.left + 8, tipY, room)];
+    const left = f.left - box.left, right = box.right - f.right, y = f.top - box.top + f.height / 2;
+    const sink = Math.min(48, f.width * 0.08), room = Math.min(left, right), scale = clamp(room / 320, 0.5, 1);
+    sides = room < 90 ? [] : [{ edge: 0, dir: 1, span: left + sink }, { edge: W, dir: -1, span: right + sink }];
+    for (const s of sides) {
+      s.y = y;
+      // the shape sits inside the stream, on the fan's axis, a little before halfway
+      s.shape = room >= 140 ? { x: s.edge + s.dir * s.span * 0.42, y, scale } : null;
+    }
+    paths = makePaths(paths, y);
     if (still.matches) draw(0, 0);
   }
 
@@ -268,43 +257,51 @@
 
   function draw(ms, dt) {
     ctx.clearRect(0, 0, W, H);
+    if (!sides.length) return;
+    for (const b of booms) { b.r += 900 * dt; b.life -= 0.9 * dt; }
+    booms = booms.filter(b => b.life > 0);
+
+    ctx.setLineDash([1, 4]); ctx.lineWidth = 1.2; ctx.strokeStyle = LINE;
+    for (const p of paths) {
+      const c = p.c = curve(p);
+      ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.bezierCurveTo(c[2], c[3], c[4], c[5], c[6], c[7]); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = MOTE;
+    for (const p of paths) {
+      p.t += p.speed * pace * dt;
+      if (p.t > 1) { p.t = 0; p.startY = clamp(p.startY + (Math.random() - 0.5) * 10, p.base - 40, p.base + 40); }
+      let [x, y] = bezier(p.t, p.c);
+      for (const b of booms) {                              // a click sends out a ring that shoves motes aside
+        const dx = x - b.x, dy = y - b.y, dist = Math.hypot(dx, dy) || 1, off = Math.abs(dist - b.r);
+        if (off < 120) { const push = (1 - off / 120) * b.life * 80; x += dx / dist * push; y += dy / dist * push; }
+      }
+      ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+    }
+
     const morph = swap(ms);
-    for (const side of sides) {
-      ctx.fillStyle = 'rgb(72,110,144)';
-      for (const c of side.curves) {
-        const n = c.pts.length / 2, gap = 7, weight = 0.4 + 0.6 * (1 - Math.abs(c.u) * 1.5);
-        for (let d = flow % gap; d < n; d += gap) {
-          const i = d | 0, k = d / n;
-          ctx.globalAlpha = (0.2 + 0.5 * k * k) * weight * Math.min(1, d / 60) * Math.min(1, (n - d) / 16);
-          ctx.fillRect(c.pts[i * 2] - 0.7, c.pts[i * 2 + 1] - 0.7, 1.45, 1.45);
-        }
-      }
-      ctx.fillStyle = 'rgb(52,92,128)';
-      for (const m of side.motes) {
-        const n = m.c.pts.length / 2;
-        m.d += m.v * dt * pace;
-        if (m.d >= n) { m.c = side.curves[Math.floor(Math.random() * side.curves.length)]; m.d = 0; }
-        const i = m.d | 0;
-        ctx.globalAlpha = Math.pow(Math.sin(Math.PI * m.d / n), 0.6) * 0.78;
-        ctx.fillRect(m.c.pts[i * 2] - m.size / 2, m.c.pts[i * 2 + 1] - m.size / 2, m.size, m.size);
-      }
-      if (side.shape) {                                     // left starts as triangle, right as grid; they trade places
-        const raw = side.dir < 0 ? morph : 1 - morph, k = side.shape.scale, dot = 1.3 + 0.8 * k;
-        ctx.fillStyle = 'rgb(58,96,130)'; ctx.globalAlpha = 0.9;
-        for (const p of SHAPE) {
-          const e = ease(clamp(raw * 1.5 - p.delay * 0.5, 0, 1)), drift = Math.sin(Math.PI * e) * 9;
-          ctx.fillRect(side.shape.x + (p.ax + (p.bx - p.ax) * e + p.jx * drift) * k - dot / 2,
-                       side.shape.y + (p.ay + (p.by - p.ay) * e + p.jy * drift) * k - dot / 2, dot, dot);
-        }
+    for (const s of sides) {
+      if (!s.shape) continue;
+      const { x: cx, y: cy, scale: k } = s.shape, r = 80 * k;
+      // clear a soft pocket in the stream so the shape reads as sitting inside it
+      const halo = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r);
+      halo.addColorStop(0, `rgba(${PAPER}, 0.94)`); halo.addColorStop(1, `rgba(${PAPER}, 0)`);
+      ctx.fillStyle = halo; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      // left starts as the triangle, right as the grid; they trade places
+      const raw = s.dir > 0 ? morph : 1 - morph, dot = 1.3 + 0.8 * k;
+      ctx.fillStyle = SHAPE_INK;
+      for (const p of SHAPE) {
+        const e = ease(clamp(raw * 1.5 - p.delay * 0.5, 0, 1)), drift = Math.sin(Math.PI * e) * 9;
+        ctx.fillRect(cx + (p.ax + (p.bx - p.ax) * e + p.jx * drift) * k - dot / 2,
+                     cy + (p.ay + (p.by - p.ay) * e + p.jy * drift) * k - dot / 2, dot, dot);
       }
     }
-    ctx.globalAlpha = 1;
   }
 
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     pace += (targetPace - pace) * Math.min(1, dt * 3);
-    flow += dt * 26 * pace;
     draw(now, dt);
     if (!still.matches) requestAnimationFrame(frame);
   }
@@ -313,6 +310,11 @@
   const start = () => { last = performance.now(); still.matches ? draw(0, 0) : requestAnimationFrame(frame); };
   still.addEventListener('change', start);
   start();
+  hero.addEventListener('pointerdown', event => {
+    if (still.matches || event.target.closest('form, .result')) return;
+    const r = canvas.getBoundingClientRect();
+    booms.push({ x: event.clientX - r.left, y: event.clientY - r.top, r: 0, life: 1 });
+  });
 
   // ---------- restore ----------
   const input = document.getElementById('link'), go = document.getElementById('go'), goLabel = document.getElementById('go-label');
