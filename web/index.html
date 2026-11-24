@@ -13,7 +13,10 @@
     --bg: #faf8f3;
     --paper: #fdfcf9;
     --ink: #16202e;
-    --blue: #34608a;
+    --blue: #1f5a8a;
+    --navy: #0f2a44;
+    --slate: #34485e;
+    --accent: #c4682e;
     --muted: #5b6673;
     --line: #cdd1d4;
     --warn: #9a3a26;
@@ -39,165 +42,156 @@
 
   .top {
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    padding: 24px clamp(20px, 3.4vw, 58px);
-    border-bottom: 1px solid var(--line);
+    padding: clamp(18px, 3.4vh, 36px) clamp(20px, 2.5vw, 44px);
   }
-  .brand { display: flex; align-items: center; gap: 22px; font-size: clamp(1.05rem, 1.35vw, 1.4rem); letter-spacing: -0.01em; }
-  .brand svg { width: 70px; height: 34px; flex: none; }
-  .route { font-family: var(--mono); font-size: clamp(0.72rem, 0.95vw, 0.95rem); letter-spacing: 0.2em; color: var(--muted); white-space: nowrap; }
+  .brand { font-size: clamp(1.08rem, 1.25vw, 1.34rem); letter-spacing: -0.01em; color: var(--ink); }
+  .route { font-family: var(--mono); font-size: clamp(0.76rem, 0.9vw, 0.92rem); font-weight: 500; letter-spacing: 0.06em; color: var(--slate); white-space: nowrap; }
 
   /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it */
-  .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(40px, 8vh, 84px) 20px 40px; }
+  .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(24px, 5vh, 64px) 20px clamp(24px, 4vh, 48px); }
   #flow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* narrower than the window on mid-size screens, so the dot flow has room on both sides */
-  .stack { position: relative; z-index: 1; width: 100%; max-width: min(906px, max(56vw, 520px)); display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .stack { position: relative; z-index: 1; width: 100%; max-width: min(860px, max(50vw, 520px)); display: flex; flex-direction: column; align-items: center; text-align: center; }
   .stack > * { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
-  .pill {
-    display: inline-flex; align-items: center; gap: 14px; margin: 0;
-    padding: 10px 24px; border: 1px solid var(--line); border-radius: 999px;
-    font-family: var(--mono); font-size: clamp(0.78rem, 1vw, 0.98rem); color: #3f4a57; background: color-mix(in srgb, var(--paper) 70%, transparent);
-  }
-  .pill i { width: 9px; height: 9px; border-radius: 50%; background: var(--blue); }
+  .pill { display: inline-flex; align-items: center; gap: 12px; margin: 0; font-family: var(--mono); font-size: clamp(0.8rem, 0.95vw, 0.96rem); letter-spacing: 0.02em; color: var(--slate); }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 
   h1 {
-    margin: clamp(26px, 4.6vh, 46px) 0 0;
+    margin: clamp(16px, 3.2vh, 32px) 0 0;
     font-family: var(--serif); font-weight: 400;
-    /* 13.3vw: narrowest phones; 7.7vw or 3.3rem: everything wider; 12vh: short screens such as landscape phones */
-    font-size: clamp(2.6rem, min(13.3vw, max(7.7vw, 3.3rem), 12vh), 8.1rem); line-height: 0.97; letter-spacing: -0.022em;
+    /* 13.3vw: narrowest phones; 5.8vw or 3.3rem: everything wider; 11vh: short screens such as landscape phones */
+    font-size: clamp(2.6rem, min(13.3vw, max(5.8vw, 3.3rem), 11vh), 6.6rem); line-height: 0.98; letter-spacing: -0.02em;
     text-wrap: balance;
   }
   h1 em { color: var(--blue); }
-  .lede { margin: clamp(22px, 4vh, 40px) 0 0; font-size: clamp(1.1rem, 1.75vw, 1.78rem); color: #4c5764; letter-spacing: 0.005em; }
 
-  .field {
-    display: flex; align-items: center; gap: 16px; width: 100%;
-    margin-top: clamp(30px, 6.4vh, 62px); padding: 16px 16px 16px 30px;
-    background: var(--paper); border: 1px solid #b7bdc4; border-radius: 22px;
-    box-shadow: 0 22px 44px -26px rgba(22, 32, 46, 0.32), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  /* one box for both jobs: paste a link to restore, or attach a video to upload */
+  .composer {
+    display: flex; flex-direction: column; gap: 12px; width: 100%; text-align: left;
+    margin-top: clamp(22px, 4.2vh, 42px); padding: 18px 16px 16px 22px; min-height: clamp(132px, 18vh, 168px);
+    background: var(--paper); border: 1.5px solid #2d4c6c; border-radius: 18px;
+    box-shadow: 0 28px 44px -32px rgba(15, 42, 68, 0.5);
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .field:focus-within { border-color: var(--blue); box-shadow: 0 22px 44px -26px rgba(22, 32, 46, 0.32), 0 0 0 4px rgba(52, 96, 138, 0.14); }
-  .field > svg { width: 34px; height: 34px; flex: none; color: #52708c; }
-  .field input {
-    flex: 1; min-width: 0; padding: 10px 6px; border: 0; outline: 0; background: none;
-    font: inherit; font-size: clamp(1rem, 1.4vw, 1.4rem); color: var(--ink);
+  .composer:focus-within { box-shadow: 0 28px 44px -32px rgba(15, 42, 68, 0.5), 0 0 0 4px rgba(31, 90, 138, 0.12); }
+  .composer[data-drop] { border-style: dashed; border-color: var(--blue); }
+  .composer textarea {
+    flex: 1; width: 100%; min-height: 3em; padding: 0; resize: none; border: 0; outline: 0; background: none;
+    font: inherit; font-size: clamp(1rem, 1.2vw, 1.22rem); line-height: 1.45; color: var(--ink);
   }
-  .field input::placeholder { color: #5f6a76; opacity: 1; }
-  button, .button {
-    display: inline-flex; align-items: center; justify-content: center; gap: 14px; flex: none;
-    padding: 18px 32px; border: 0; border-radius: 14px; cursor: pointer;
-    background: var(--ink); color: #fff; text-decoration: none;
-    font: inherit; font-weight: 500; font-size: clamp(1rem, 1.35vw, 1.36rem);
+  .composer textarea::placeholder { color: #67727e; opacity: 1; }
+  .bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+  .bar .go { margin-left: auto; }   /* stays on the right even when the row wraps on phones */
+  .attach {
+    display: inline-flex; align-items: center; gap: 8px; margin-left: -10px; padding: 8px 12px; border-radius: 999px; cursor: pointer;
+    font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.04em; color: var(--slate);
+  }
+  .attach svg { width: 18px; height: 18px; flex: none; }
+  #file:focus-visible + .attach { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; padding: 4px 4px 4px 12px;
+    border-radius: 999px; background: #eaf0f5; color: var(--ink); font-size: 0.9rem;
+  }
+  .chip > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-x { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--slate); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+  .share { display: inline-flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--slate); cursor: pointer; }
+  .share input { width: 16px; height: 16px; margin: 0; accent-color: var(--navy); }
+
+  button { font: inherit; }
+  .go, .button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px; flex: none;
+    padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer; text-decoration: none;
+    background: var(--navy); color: #fff; font-family: var(--mono); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.02em;
     transition: transform 0.15s, background 0.2s;
   }
-  button:active, .button:active { transform: translateY(1px); }
+  .ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 11px 20px; border-radius: 999px; cursor: pointer;
+    background: none; color: var(--ink); border: 1px solid #b7bdc4; font-family: var(--mono); font-size: 0.95rem;
+  }
+  .go:active, .button:active, .ghost:active { transform: translateY(1px); }
   /* hover looks only where there is a real pointer; on touch screens they stick after a tap */
   @media (hover: hover) {
-    button:hover, .button:hover { background: #22364c; }
-    button:hover .arrow, .button:hover .arrow { transform: translateX(4px); }
-    .modes button:hover { background: rgba(52, 96, 138, 0.08); color: var(--ink); }
-    .field .pick:hover { background: rgba(52, 96, 138, 0.06); color: var(--ink); }
-    .ghost:hover { background: rgba(52, 96, 138, 0.08); }
+    .go:hover, .button:hover { background: #1b3d60; }
+    .go:hover .arrow, .button:hover .arrow, .ghost:hover .arrow { transform: translateX(3px); }
+    .attach:hover { background: rgba(31, 90, 138, 0.07); color: var(--ink); }
+    .chip-x:hover { background: rgba(15, 42, 68, 0.08); color: var(--ink); }
+    .ghost:hover { background: rgba(31, 90, 138, 0.07); }
   }
   .arrow { transition: transform 0.2s; }
-  button[disabled] { cursor: progress; background: #3a4654; }
+  .go[disabled] { cursor: progress; background: #3a4f66; }
   :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
-  .field input:focus-visible { outline: 0; }
+  .composer textarea:focus-visible { outline: 0; }
 
   .caption {
-    margin: clamp(28px, 5vh, 46px) 0 0; min-height: 1.4em;
-    font-family: var(--mono); font-size: clamp(0.74rem, 0.95vw, 0.95rem); letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
+    margin: clamp(24px, 4.6vh, 44px) 0 0; min-height: 1.4em;
+    font-family: var(--mono); font-size: clamp(0.76rem, 0.95vw, 0.95rem); font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--slate);
   }
-  .caption.error { font-family: var(--sans); font-size: 1.05rem; letter-spacing: 0; text-transform: none; color: var(--warn); }
+  .caption.error { font-family: var(--sans); font-size: 1.05rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--warn); }
 
   .result {
-    width: 100%; margin-top: 36px; overflow: hidden; text-align: left;
-    background: var(--paper); border: 1px solid #b7bdc4; border-radius: 22px;
-    box-shadow: 0 30px 60px -34px rgba(22, 32, 46, 0.4);
+    width: 100%; margin-top: 32px; overflow: hidden; text-align: left;
+    background: var(--paper); border: 1.5px solid #2d4c6c; border-radius: 18px;
+    box-shadow: 0 30px 60px -34px rgba(15, 42, 68, 0.45);
   }
-  .result[hidden] { display: none; }
   .result video, .result img { display: block; width: 100%; max-height: 62vh; background: #0f1722; object-fit: contain; }
-  .meta { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 20px 20px 26px; flex-wrap: wrap; }
-  .meta h2 { margin: 0; font-size: 1.15rem; font-weight: 500; overflow-wrap: anywhere; }
-  .meta p { margin: 8px 0 0; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .meta { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 18px 18px 22px; flex-wrap: wrap; }
+  .meta h2 { margin: 0; font-size: 1.12rem; font-weight: 500; overflow-wrap: anywhere; }
+  .meta p { margin: 8px 0 0; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .meta .ok { color: #2f6b4f; }
-  .meta .button { padding: 14px 24px; font-size: 1.05rem; }
-
-  [hidden] { display: none !important; }
-  .modes {
-    display: inline-flex; gap: 4px; margin-top: clamp(22px, 3.6vh, 34px); padding: 4px;
-    border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--paper) 80%, transparent);
-  }
-  .modes button {
-    padding: 8px 20px; border-radius: 999px; background: none; color: var(--muted);
-    font-family: var(--mono); font-size: 0.82rem; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase;
-  }
-  .modes button[aria-pressed="true"] { background: var(--ink); color: #fff; }
-  .modes button[disabled] { cursor: progress; }
-  .field[data-drop] { border-color: var(--blue); border-style: dashed; }
-  .field .pick {
-    display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; align-self: stretch;
-    margin-left: -14px; padding: 6px 6px 6px 14px; border-radius: 12px; cursor: pointer;
-    color: #5f6a76; font-size: clamp(1rem, 1.4vw, 1.4rem);
-  }
-  .field .pick svg { width: 34px; height: 34px; flex: none; color: #52708c; }
-  .field .pick span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .field .pick.chosen { color: var(--ink); }
-  #file:focus-visible + .pick { outline: 2px solid var(--blue); outline-offset: 3px; }
-  .share { display: inline-flex; align-items: center; gap: 10px; margin: 20px 0 0; font-size: 1rem; color: #3f4a57; cursor: pointer; }
-  .share input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); }
   .meta .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .ghost { padding: 14px 22px; background: none; color: var(--ink); border: 1px solid #b7bdc4; font-size: 1.05rem; }
   .meta .link-line { margin: 10px 0 0; font-family: var(--sans); font-size: 0.95rem; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
   .link-line a { color: var(--blue); }
 
-  footer { padding: 26px 20px 44px; text-align: center; font-family: var(--mono); font-size: 0.9rem; letter-spacing: 0.12em; color: var(--muted); }
+  [hidden] { display: none !important; }
+
+  footer {
+    padding: clamp(16px, 3vh, 32px) clamp(20px, 2.5vw, 44px);
+    text-align: right; font-family: var(--mono); font-size: 0.88rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate);
+  }
 
   @media (max-width: 600px) {
-    .brand svg { width: 52px; height: 26px; }
-    .brand { gap: 12px; }
-    .field { flex-wrap: wrap; padding: 14px; border-radius: 18px; }
-    .field > svg, .field .pick svg { width: 26px; height: 26px; margin-left: 6px; }
-    .field .pick { margin-left: 0; padding-left: 0; }
-    .field button { width: 100%; }
-    .caption { letter-spacing: 0.14em; }
+    .composer { padding: 16px 14px 14px 16px; border-radius: 16px; }
+    .attach { margin-left: -6px; }
+    .caption { letter-spacing: 0.1em; }
     .meta .actions, .meta .button, .ghost { width: 100%; }
-    .pill { padding: 8px 16px; gap: 10px; letter-spacing: -0.02em; }
-    .route { letter-spacing: 0.12em; }
+    .route { letter-spacing: 0.03em; }
+    footer { text-align: center; }
   }
   /* touch screens: every control at least 44px tall */
   @media (pointer: coarse) {
-    .modes button { min-height: 44px; padding: 10px 22px; }
-    .field .pick { min-height: 48px; }
-    .share { min-height: 44px; padding: 0 6px; }
-    .share input { width: 22px; height: 22px; }
+    .go, .button, .ghost { min-height: 46px; padding-inline: 22px; }
+    .attach { min-height: 44px; }
+    .chip { min-height: 44px; }
+    .chip-x { width: 44px; height: 44px; }
+    .share { min-height: 44px; }
+    .share input { width: 20px; height: 20px; }
   }
-  /* short screens (landscape phones, small phones): pull the input box up into view */
+  /* short screens (landscape phones, small phones): pull the box up into view */
   @media (max-height: 700px) {
     .top { padding-top: 14px; padding-bottom: 14px; }
-    .hero { padding-top: 18px; padding-bottom: 24px; }
-    h1 { margin-top: 14px; }
-    .lede { margin-top: 12px; font-size: 1.05rem; }
-    .modes { margin-top: 14px; }
-    .field { margin-top: 16px; }
-    .caption { margin-top: 18px; }
-    footer { padding: 14px 20px 20px; }
+    .hero { padding-top: 12px; padding-bottom: 20px; }
+    h1 { margin-top: 12px; }
+    .composer { margin-top: 16px; min-height: 118px; }
+    .caption { margin-top: 16px; }
+    footer { padding-top: 12px; padding-bottom: 14px; }
   }
   @media (max-height: 480px) {
     .pill { display: none; }
     h1 { margin-top: 0; }
+    .composer { min-height: 104px; padding-top: 12px; }
   }
   /* big monitors: scale the whole page up instead of leaving a small island in the middle */
   @media (min-width: 1800px) and (min-height: 1000px) {
     html { font-size: 112.5%; }
-    .stack { max-width: 1020px; }
+    .stack { max-width: 980px; }
   }
   @media (min-width: 2400px) and (min-height: 1300px) {
     html { font-size: 131.25%; }
-    .stack { max-width: 1200px; }
-    h1 { font-size: clamp(2.6rem, min(13.3vw, max(7.7vw, 3.3rem), 12vh), 9.4rem); }
+    .stack { max-width: 1160px; }
+    h1 { font-size: clamp(2.6rem, min(13.3vw, max(5.8vw, 3.3rem), 11vh), 7.8rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     .stack > * { animation: none; }
@@ -207,47 +201,37 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand">
-    <svg viewBox="0 0 70 34" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-      <rect x="1" y="1" width="68" height="32" rx="4"/>
-      <path d="M13 9.5v15l12-7.5z" stroke-linejoin="round"/>
-      <path d="M34 5v24h31V5zM34 13h31M34 21h31M44.3 5v24M54.6 5v24" stroke-width="1.3"/>
-    </svg>
-    <span>Cellulo</span>
-  </div>
-  <span class="route" id="route">SHEETS &rarr; VIDEO</span>
+  <span class="brand">Cellulo</span>
+  <span class="route">VIDEO &rarr; SHEETS</span>
 </header>
 
 <main class="hero">
   <canvas id="flow" aria-hidden="true"></canvas>
   <div class="stack">
-    <p class="pill" style="--i:0"><i></i><span id="pill-text">A simpler way to get video back</span></p>
+    <p class="pill" style="--i:0"><i></i>A simpler way to save video</p>
     <h1 style="--i:1">Your video.<br><em>One link</em> away.</h1>
-    <p class="lede" id="lede" style="--i:2">Paste a Google Sheets link to restore it.</p>
-    <div class="modes" role="group" aria-label="What to do" style="--i:3">
-      <button type="button" data-mode="restore" aria-pressed="true">Restore</button>
-      <button type="button" data-mode="upload" aria-pressed="false">Upload</button>
-    </div>
-    <form class="field" id="form" style="--i:4">
-      <svg id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-        <path d="M10.2 13.8a4 4 0 0 0 5.7 0l3.3-3.3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/>
-        <path d="M13.8 10.2a4 4 0 0 0-5.7 0l-3.3 3.3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>
-      </svg>
-      <label class="sr-only" for="link">Google Sheets link</label>
-      <input id="link" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste your Google Sheets link here&hellip;">
-      <!-- a label for the file input opens the system file picker natively; a scripted click on a hidden input does not in every browser -->
-      <input id="file" type="file" accept="video/*,image/*" class="sr-only">
-      <label class="pick" id="pick" for="file" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/>
-          <path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>
-        </svg>
-        <span id="pick-text">Click to choose a video or image from your computer&hellip;</span>
-      </label>
-      <button id="go" type="submit"><span id="go-label">Restore</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
+    <form class="composer" id="form" style="--i:2">
+      <label class="sr-only" for="link">Video link</label>
+      <textarea id="link" rows="2" autocomplete="off" spellcheck="false" placeholder="Paste your video link here&hellip;"></textarea>
+      <div class="bar">
+        <!-- a label for the file input opens the system file picker natively; a scripted click on a hidden input does not in every browser -->
+        <input id="file" type="file" accept="video/*,image/*" class="sr-only">
+        <label class="attach" id="pick" for="file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.5 11.6 12.3 19.8a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.6 8.6a1.7 1.7 0 0 1-2.5-2.5l7.8-7.8"/>
+          </svg>
+          <span>Attach a video</span>
+        </label>
+        <span class="chip" id="chip" hidden>
+          <span id="chip-name"></span>
+          <button type="button" class="chip-x" id="unpick" aria-label="Remove the attached file">&times;</button>
+        </span>
+        <label class="share" id="share-row" hidden><input type="checkbox" id="share" checked> Anyone with the link can restore it</label>
+        <span class="spacer"></span>
+        <button class="go" id="go" type="submit"><span id="go-label">Upload</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
+      </div>
     </form>
-    <label class="share" id="share-row" hidden><input type="checkbox" id="share" checked> Anyone with the link can restore it</label>
-    <p class="caption" id="status" role="status" style="--i:5">Paste a link. We&rsquo;ll take it from here.</p>
+    <p class="caption" id="status" role="status" style="--i:3">Paste a link. We&rsquo;ll take it from here.</p>
     <section class="result" id="sent" aria-label="Uploaded file" hidden>
       <div class="meta">
         <div>
@@ -282,22 +266,31 @@
   const canvas = document.getElementById('flow'), ctx = canvas.getContext('2d');
   const hero = document.querySelector('.hero'), form = document.getElementById('form');
   const still = matchMedia('(prefers-reduced-motion: reduce)');
-  const LINE = 'rgba(40, 64, 92, 0.4)', MOTE = 'rgba(40, 64, 92, 0.75)', SHAPE_INK = 'rgba(52, 92, 128, 0.95)', PAPER = '250, 248, 243';
+  const LINE = 'rgba(52, 72, 94, 0.3)', MOTE = 'rgba(15, 42, 68, 0.85)', SHAPE_INK = 'rgba(15, 42, 68, 0.9)', PAPER = '250, 248, 243';
   let W = 0, H = 0, sides = [], paths = [], booms = [], pace = 1, targetPace = 1, last = 0;
 
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-  // play triangle and sheet grid, both as dot lattices around (0, 0)
-  function trianglePoints() {
-    const pts = [], w = 84, h = 98, s = 5.2;
-    for (let y = -h / 2; y <= h / 2; y += s)
-      for (let x = -w / 2; x <= w / 2; x += s)
-        if (Math.abs(y) <= (h / 2) * (1 - (x + w / 2) / w) + 0.01) pts.push([x, y]);
+  // a video icon (rounded screen with a play button) and a sheet grid, both as dot lattices around (0, 0), same size
+  const SHAPE_W = 116, SHAPE_H = 84;
+  function videoPoints() {
+    const pts = [], w = SHAPE_W, h = SHAPE_H, r = 12, s = 4.2;
+    const edges = [[-w / 2 + r, -h / 2, 1, 0, w - 2 * r], [w / 2, -h / 2 + r, 0, 1, h - 2 * r], [w / 2 - r, h / 2, -1, 0, w - 2 * r], [-w / 2, h / 2 - r, 0, -1, h - 2 * r]];
+    const corners = [[w / 2 - r, -h / 2 + r, -Math.PI / 2], [w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, Math.PI / 2], [-w / 2 + r, -h / 2 + r, Math.PI]];
+    for (let i = 0; i < 4; i++) {   // walk the outline at an even spacing: straight edge, then its rounded corner
+      const [x0, y0, dx, dy, len] = edges[i], [cx, cy, a0] = corners[i];
+      for (let d = 0; d < len; d += s) pts.push([x0 + dx * d, y0 + dy * d]);
+      for (let a = 0; a < Math.PI / 2; a += s / r) pts.push([cx + r * Math.cos(a0 + a), cy + r * Math.sin(a0 + a)]);
+    }
+    const tw = 30, th = 34, ts = 4.4;   // play button, filled, centred on its own centre of weight
+    for (let x = 0; x <= tw; x += ts)
+      for (let y = -th / 2; y <= th / 2; y += ts)
+        if (Math.abs(y) <= (th / 2) * (1 - x / tw) + 0.01) pts.push([x - tw / 3, y]);
     return pts;
   }
   function gridPoints() {
-    const pts = [], w = 114, h = 88, s = 4;
+    const pts = [], w = SHAPE_W, h = SHAPE_H, s = 4;
     const xs = [-w / 2, -w / 6, w / 6, w / 2], ys = [-h / 2, -h / 6, h / 6, h / 2];
     for (const y of ys) for (let x = -w / 2; x <= w / 2; x += s) pts.push([x, y]);
     for (const x of xs) for (let y = -h / 2 + s; y < h / 2; y += s) if (!ys.some(v => Math.abs(v - y) < s / 2)) pts.push([x, y]);
@@ -306,7 +299,7 @@
   // pair every dot of one shape with a dot of the other, row by row, so the morph stays tidy
   const SHAPE = (() => {
     const byRow = (p, q) => p[1] - q[1] || p[0] - q[0];
-    const a = trianglePoints().sort(byRow), b = gridPoints().sort(byRow), n = Math.max(a.length, b.length);
+    const a = videoPoints().sort(byRow), b = gridPoints().sort(byRow), n = Math.max(a.length, b.length);
     return Array.from({ length: n }, (_, i) => {
       const p = a[Math.floor(i * a.length / n)], q = b[Math.floor(i * b.length / n)], turn = Math.random() * 6.283;
       return { ax: p[0], ay: p[1], bx: q[0], by: q[1], delay: 0.55 * i / n + 0.45 * Math.random(), jx: Math.cos(turn), jy: Math.sin(turn) };
@@ -314,7 +307,7 @@
   })();
 
   // Gateway Flow, light mode: 80 dotted cubic curves, alternating sides, one mote riding each.
-  // Changed from the original: the curves end just inside the link box instead of at the screen centre.
+  // Changed from the original: the curves meet in a point just outside each side of the box, not at the screen centre.
   const PATHS = 80;
   function makePaths(old, centre) {
     return Array.from({ length: PATHS }, (_, i) => {
@@ -323,7 +316,7 @@
                speed: prev ? prev.speed : (0.0015 + Math.random() * 0.002) * 60 };   // original speeds were per frame at 60 fps
     });
   }
-  // edge -> halfway, still at the start height -> 80%, at the box height -> just inside the box
+  // edge -> halfway, still at the start height -> 80%, at the box height -> the tip beside the box
   function curve(p) {
     const s = p.left ? sides[0] : sides[1], at = f => s.edge + s.dir * s.span * f;
     return [at(0), p.startY, at(0.5), p.startY, at(0.8), s.y, at(1), s.y];
@@ -339,8 +332,8 @@
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const left = f.left - box.left, right = box.right - f.right, y = f.top - box.top + f.height / 2;
-    const sink = Math.min(48, f.width * 0.08), room = Math.min(left, right), scale = clamp(room / 320, 0.5, 1.6);   // shapes grow on big screens
-    sides = room < 90 ? [] : [{ edge: 0, dir: 1, span: left + sink }, { edge: W, dir: -1, span: right + sink }];
+    const gap = 12, room = Math.min(left, right), scale = clamp(room / 320, 0.5, 1.6);   // shapes grow on big screens
+    sides = room < 90 ? [] : [{ edge: 0, dir: 1, span: left - gap }, { edge: W, dir: -1, span: right - gap }];
     for (const s of sides) {
       s.y = y;
       // the shape sits inside the stream, on the fan's axis, a little before halfway
@@ -350,7 +343,7 @@
     if (still.matches) draw(0, 0);
   }
 
-  // 0 = triangle, 1 = grid: hold, morph, hold, morph back
+  // 0 = video icon, 1 = grid: hold, morph, hold, morph back
   function swap(ms) {
     const p = (ms / 7400) % 1;
     return p < 0.27 ? 0 : p < 0.5 ? (p - 0.27) / 0.23 : p < 0.77 ? 1 : 1 - (p - 0.77) / 0.23;
@@ -378,7 +371,7 @@
         const dx = x - b.x, dy = y - b.y, dist = Math.hypot(dx, dy) || 1, off = Math.abs(dist - b.r);
         if (off < 120) { const push = (1 - off / 120) * b.life * 80; x += dx / dist * push; y += dy / dist * push; }
       }
-      ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+      ctx.fillRect(x - 2, y - 2, 4, 4);
     }
 
     const morph = swap(ms);
@@ -389,7 +382,7 @@
       const halo = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r);
       halo.addColorStop(0, `rgba(${PAPER}, 0.94)`); halo.addColorStop(1, `rgba(${PAPER}, 0)`);
       ctx.fillStyle = halo; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-      // left starts as the triangle, right as the grid; they trade places
+      // left starts as the video icon, right as the grid; they trade places
       const raw = s.dir > 0 ? morph : 1 - morph, dot = 1.3 + 0.8 * k;
       ctx.fillStyle = SHAPE_INK;
       for (const p of SHAPE) {
@@ -421,14 +414,12 @@
   const input = document.getElementById('link'), go = document.getElementById('go'), goLabel = document.getElementById('go-label');
   const status = document.getElementById('status'), result = document.getElementById('result'), media = document.getElementById('media');
   const save = document.getElementById('save');
-  const modeButtons = [...document.querySelectorAll('.modes button')];
-  let objectUrl = null, ticker = 0, done = '', mode = 'restore';
+  let objectUrl = null, ticker = 0, done = '', action = 'upload';   // what the button will do: 'upload' or 'restore'
 
   function say(text, isError) { status.textContent = text; status.classList.toggle('error', !!isError); }
   function busy(on) {
-    const up = mode === 'upload';
+    const up = action === 'upload';
     go.disabled = on; goLabel.textContent = on ? (up ? 'Uploading' : 'Restoring') : (up ? 'Upload' : 'Restore');
-    for (const button of modeButtons) button.disabled = on;
     targetPace = on ? 4 : 1; done = '';
     clearInterval(ticker);
     if (on) {
@@ -530,45 +521,38 @@
   const sent = document.getElementById('sent'), sentLink = document.getElementById('sent-link');
   let chosen = null, gis = null, tokenClient = null, pending = null, token = null;
 
-  const COPY = {
-    restore: { route: 'SHEETS → VIDEO', pill: 'A simpler way to get video back', lede: 'Paste a Google Sheets link to restore it.', go: 'Restore',
-               hint: LOCAL ? 'Paste a link. We’ll take it from here.' : 'The sheet must be shared: anyone with the link.' },
-    upload:  { route: 'VIDEO → SHEETS', pill: 'A simpler way to save video', lede: 'Store a video or image in your own Google Sheets.', go: 'Upload',
-               hint: 'Sign in with your own Google account. The file stays in your Drive.' },
-  };
-  function setMode(next) {
-    mode = next;
-    const up = mode === 'upload', copy = COPY[mode];
-    for (const button of modeButtons) button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
-    document.getElementById('route').textContent = copy.route;
-    document.getElementById('pill-text').textContent = copy.pill;
-    document.getElementById('lede').textContent = copy.lede;
-    goLabel.textContent = copy.go;
-    input.hidden = up; pick.hidden = !up; shareRow.hidden = !up;
-    document.getElementById('icon-link').toggleAttribute('hidden', up);   // SVG elements have no .hidden property
-    result.hidden = true; sent.hidden = true;
-    say(copy.hint);
-    if (up) loadGis().catch(error => say(error.message, true));
+  // one box: an attached file means upload, otherwise a pasted link means restore
+  function updateAction() {
+    if (go.disabled) return;
+    action = chosen || !input.value.trim() ? 'upload' : 'restore';
+    goLabel.textContent = action === 'upload' ? 'Upload' : 'Restore';
   }
-  for (const button of modeButtons) button.addEventListener('click', () => setMode(button.dataset.mode));
-
-  // touch screens tap and have no drag-and-drop or "computer"; word the hint for the device
-  const TOUCH = matchMedia('(pointer: coarse)').matches;
-  const PICK_HINT = TOUCH ? 'Tap to choose a video or image…' : 'Click to choose a video or image from your computer…';
-  document.getElementById('pick-text').textContent = PICK_HINT;
   function choose(file) {
     chosen = file || null;
-    document.getElementById('pick-text').textContent = chosen
-      ? `${chosen.name} · ${(chosen.size / 1e6).toFixed(chosen.size < 1e6 ? 2 : 1)} MB · ${TOUCH ? 'tap' : 'click'} to change`
-      : PICK_HINT;
-    pick.classList.toggle('chosen', !!chosen);
+    if (chosen) input.value = '';   // one job at a time: an attached file replaces a pasted link
+    else fileInput.value = '';      // so the same file can be picked again
+    document.getElementById('chip-name').textContent =
+      chosen ? `${chosen.name} · ${(chosen.size / 1e6).toFixed(chosen.size < 1e6 ? 2 : 1)} MB` : '';
+    document.getElementById('chip').hidden = !chosen;
+    pick.hidden = !!chosen; shareRow.hidden = !chosen;
+    result.hidden = true; sent.hidden = true;
+    updateAction();
+    if (chosen) {
+      say('Press Upload and sign in with your own Google account. The file stays in your Drive.');
+      loadGis().catch(error => say(error.message, true));   // ready before the click, so the sign-in window may open
+    } else say('Paste a link. We’ll take it from here.');
   }
   fileInput.addEventListener('change', () => choose(fileInput.files[0]));
-  form.addEventListener('dragover', event => { if (mode !== 'upload') return; event.preventDefault(); form.dataset.drop = ''; });
+  document.getElementById('unpick').addEventListener('click', () => choose(null));
+  input.addEventListener('input', updateAction);
+  input.addEventListener('keydown', event => {   // Enter sends, as in a chat box; Shift+Enter still makes a new line
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); form.requestSubmit(); }
+  });
+  form.addEventListener('dragover', event => { event.preventDefault(); form.dataset.drop = ''; });
   form.addEventListener('dragleave', () => delete form.dataset.drop);
   form.addEventListener('drop', event => {
-    if (mode !== 'upload') return;
-    event.preventDefault(); delete form.dataset.drop; choose(event.dataTransfer.files[0]);
+    event.preventDefault(); delete form.dataset.drop;
+    if (event.dataTransfer.files[0]) choose(event.dataTransfer.files[0]);
   });
 
   function loadGis() {
@@ -646,7 +630,6 @@
   }
 
   function startUpload() {
-    if (!chosen) return say('Choose a video or image first.', true);
     if (!chosen.size) return say('That file is empty.', true);
     if (chosen.size > MAX_BYTES)
       return say(`That file is ${(chosen.size / 1e6).toFixed(1)} MB. The limit is 100 MB, because a Google spreadsheet fills up at about 110 MB.`, true);
@@ -681,16 +664,17 @@
   });
   document.getElementById('try').addEventListener('click', () => {
     const link = sentLink.href;
-    setMode('restore'); input.value = link; form.requestSubmit();
+    choose(null); input.value = link; updateAction(); form.requestSubmit();
   });
-  setMode('restore');
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (go.disabled) return;
-    if (mode === 'upload') return startUpload();
+    updateAction();
+    if (chosen) return startUpload();
     const link = input.value.trim();
-    if (!link) return say('Paste a Google Sheets link first.', true);
+    if (!link) return say('Paste a video link, or attach a video to upload.', true);
+    sent.hidden = true;
     busy(true); say('Restoring from Google Sheets');
     try {
       const file = await (LOCAL ? readLocal(link) : readPublicSheet(link));

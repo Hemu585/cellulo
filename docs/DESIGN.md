@@ -93,12 +93,19 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 - The page re-computes the SHA-256 with the browser's Web Crypto before showing anything.
 - An unfinished upload is refused before any chunk is read.
 
+### Page design (24 Nov 2026)
+
+Follows the owner's reference image: plain "Cellulo" header with "VIDEO → SHEETS", an orange-dot tagline, the serif headline, one composer box, a mono caption and "CELLULO" in the footer.
+
+- One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a video", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
+- The flow lines meet in a point just outside each side of the box. A dot **video icon** (rounded screen with a play button) on one side and a dot **grid** on the other trade shapes in a loop.
+
 ### Responsive layout (checked 24 Nov 2026)
 
-Measured in both modes at 320×568, 390×844, 844×390 (landscape phone), 768×1024, 1024×768, 1440×900, 1920×1080 and 2560×1440: no sideways scrolling and nothing past the screen edge.
+Measured with the box empty and with a file attached, at 320×568, 390×844, 844×390 (landscape phone), 768×1024, 1024×768, 1440×900, 1920×1080 and 2560×1440: no sideways scrolling and nothing past the screen edge.
 
 - The hero grid column is `minmax(0, 1fr)`, so a long file name cannot widen the page.
-- Touch screens (`pointer: coarse`): every control is at least 44 px tall, and the file box says "Tap to choose…".
+- Touch screens (`pointer: coarse`): every control, including the remove-file button, is at least 44 px tall.
 - Hover effects only apply where the device can hover, so they don't stick after a tap.
 - Short screens (`max-height: 700px`, and `480px` for landscape phones): tighter spacing, the headline sizes by height too, and the tagline pill is dropped below 480 px, so the input box stays on the first screen.
 - Big monitors (1800+ and 2400+ px wide): the page scales up, and the dot shapes grow with the free space.

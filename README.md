@@ -48,13 +48,13 @@ One file per spreadsheet. Images work the same way as videos.
 
 <https://cellulo-app.vercel.app> uploads and restores in the browser; nothing to install.
 
-**Upload:** choose **Upload**, pick a video or image (or drop it on the box), press **Upload** and sign in with your own Google account. The file goes into a new spreadsheet in your own Google Drive. With **Anyone with the link can restore it** ticked (the default), the page then shows a link you can send to anyone.
+**Upload:** click **Attach a video** in the box (or drop a file on it), press **Upload** and sign in with your own Google account. The file goes into a new spreadsheet in your own Google Drive. With **Anyone with the link can restore it** ticked (the default), the page then shows a link you can send to anyone.
 
 - The site asks only for access to files it creates itself, not the rest of your Drive.
 - Limit 100 MB.
 - While the Google app is in Testing, only test users can sign in. Add people under Google Auth Platform, Audience, Test users in the `sheetvid-poc` project.
 
-**Restore:** paste the sheet link. This works for sheets shared as **Anyone with the link** (Viewer); sheets uploaded with `sheetvid.py` must be shared by hand in Google Sheets first.
+**Restore:** paste the sheet link into the same box and press **Restore** (or Enter). The button changes from Upload to Restore as soon as you paste. This works for sheets shared as **Anyone with the link** (Viewer); sheets uploaded with `sheetvid.py` must be shared by hand in Google Sheets first.
 
 - The browser reads the cells straight from Google; no server is involved, so there is no size limit beyond the tool's 100 MB.
 - Private sheets are refused with a message saying how to share them.
