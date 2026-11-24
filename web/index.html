@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#faf8f3">
 <title>Cellulo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +32,8 @@
     color: var(--ink);
     font-family: var(--sans);
     overflow-x: hidden;
+    /* keep content clear of notches and the home indicator (viewport-fit=cover) */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
@@ -43,7 +46,8 @@
   .brand svg { width: 70px; height: 34px; flex: none; }
   .route { font-family: var(--mono); font-size: clamp(0.72rem, 0.95vw, 0.95rem); letter-spacing: 0.2em; color: var(--muted); white-space: nowrap; }
 
-  .hero { position: relative; display: grid; place-items: center; padding: clamp(40px, 8vh, 84px) 20px 40px; }
+  /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it */
+  .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(40px, 8vh, 84px) 20px 40px; }
   #flow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* narrower than the window on mid-size screens, so the dot flow has room on both sides */
   .stack { position: relative; z-index: 1; width: 100%; max-width: min(906px, max(56vw, 520px)); display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -60,7 +64,8 @@
   h1 {
     margin: clamp(26px, 4.6vh, 46px) 0 0;
     font-family: var(--serif); font-weight: 400;
-    font-size: clamp(3.3rem, 7.7vw, 8.1rem); line-height: 0.97; letter-spacing: -0.022em;
+    /* 13.3vw: narrowest phones; 7.7vw or 3.3rem: everything wider; 12vh: short screens such as landscape phones */
+    font-size: clamp(2.6rem, min(13.3vw, max(7.7vw, 3.3rem), 12vh), 8.1rem); line-height: 0.97; letter-spacing: -0.022em;
     text-wrap: balance;
   }
   h1 em { color: var(--blue); }
@@ -87,9 +92,15 @@
     font: inherit; font-weight: 500; font-size: clamp(1rem, 1.35vw, 1.36rem);
     transition: transform 0.15s, background 0.2s;
   }
-  button:hover, .button:hover { background: #22364c; }
   button:active, .button:active { transform: translateY(1px); }
-  button:hover .arrow, .button:hover .arrow { transform: translateX(4px); }
+  /* hover looks only where there is a real pointer; on touch screens they stick after a tap */
+  @media (hover: hover) {
+    button:hover, .button:hover { background: #22364c; }
+    button:hover .arrow, .button:hover .arrow { transform: translateX(4px); }
+    .modes button:hover { background: rgba(52, 96, 138, 0.08); color: var(--ink); }
+    .field .pick:hover { background: rgba(52, 96, 138, 0.06); color: var(--ink); }
+    .ghost:hover { background: rgba(52, 96, 138, 0.08); }
+  }
   .arrow { transition: transform 0.2s; }
   button[disabled] { cursor: progress; background: #3a4654; }
   :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
@@ -123,7 +134,6 @@
     padding: 8px 20px; border-radius: 999px; background: none; color: var(--muted);
     font-family: var(--mono); font-size: 0.82rem; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase;
   }
-  .modes button:hover { background: rgba(52, 96, 138, 0.08); color: var(--ink); }
   .modes button[aria-pressed="true"] { background: var(--ink); color: #fff; }
   .modes button[disabled] { cursor: progress; }
   .field[data-drop] { border-color: var(--blue); border-style: dashed; }
@@ -134,14 +144,12 @@
   }
   .field .pick svg { width: 34px; height: 34px; flex: none; color: #52708c; }
   .field .pick span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .field .pick:hover { background: rgba(52, 96, 138, 0.06); color: var(--ink); }
   .field .pick.chosen { color: var(--ink); }
   #file:focus-visible + .pick { outline: 2px solid var(--blue); outline-offset: 3px; }
   .share { display: inline-flex; align-items: center; gap: 10px; margin: 20px 0 0; font-size: 1rem; color: #3f4a57; cursor: pointer; }
   .share input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); }
   .meta .actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .ghost { padding: 14px 22px; background: none; color: var(--ink); border: 1px solid #b7bdc4; font-size: 1.05rem; }
-  .ghost:hover { background: rgba(52, 96, 138, 0.08); }
   .meta .link-line { margin: 10px 0 0; font-family: var(--sans); font-size: 0.95rem; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
   .link-line a { color: var(--blue); }
 
@@ -155,7 +163,41 @@
     .field .pick { margin-left: 0; padding-left: 0; }
     .field button { width: 100%; }
     .caption { letter-spacing: 0.14em; }
-    .meta .button { width: 100%; }
+    .meta .actions, .meta .button, .ghost { width: 100%; }
+    .pill { padding: 8px 16px; gap: 10px; letter-spacing: -0.02em; }
+    .route { letter-spacing: 0.12em; }
+  }
+  /* touch screens: every control at least 44px tall */
+  @media (pointer: coarse) {
+    .modes button { min-height: 44px; padding: 10px 22px; }
+    .field .pick { min-height: 48px; }
+    .share { min-height: 44px; padding: 0 6px; }
+    .share input { width: 22px; height: 22px; }
+  }
+  /* short screens (landscape phones, small phones): pull the input box up into view */
+  @media (max-height: 700px) {
+    .top { padding-top: 14px; padding-bottom: 14px; }
+    .hero { padding-top: 18px; padding-bottom: 24px; }
+    h1 { margin-top: 14px; }
+    .lede { margin-top: 12px; font-size: 1.05rem; }
+    .modes { margin-top: 14px; }
+    .field { margin-top: 16px; }
+    .caption { margin-top: 18px; }
+    footer { padding: 14px 20px 20px; }
+  }
+  @media (max-height: 480px) {
+    .pill { display: none; }
+    h1 { margin-top: 0; }
+  }
+  /* big monitors: scale the whole page up instead of leaving a small island in the middle */
+  @media (min-width: 1800px) and (min-height: 1000px) {
+    html { font-size: 112.5%; }
+    .stack { max-width: 1020px; }
+  }
+  @media (min-width: 2400px) and (min-height: 1300px) {
+    html { font-size: 131.25%; }
+    .stack { max-width: 1200px; }
+    h1 { font-size: clamp(2.6rem, min(13.3vw, max(7.7vw, 3.3rem), 12vh), 9.4rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     .stack > * { animation: none; }
@@ -297,7 +339,7 @@
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const left = f.left - box.left, right = box.right - f.right, y = f.top - box.top + f.height / 2;
-    const sink = Math.min(48, f.width * 0.08), room = Math.min(left, right), scale = clamp(room / 320, 0.5, 1);
+    const sink = Math.min(48, f.width * 0.08), room = Math.min(left, right), scale = clamp(room / 320, 0.5, 1.6);   // shapes grow on big screens
     sides = room < 90 ? [] : [{ edge: 0, dir: 1, span: left + sink }, { edge: W, dir: -1, span: right + sink }];
     for (const s of sides) {
       s.y = y;
@@ -510,11 +552,15 @@
   }
   for (const button of modeButtons) button.addEventListener('click', () => setMode(button.dataset.mode));
 
+  // touch screens tap and have no drag-and-drop or "computer"; word the hint for the device
+  const TOUCH = matchMedia('(pointer: coarse)').matches;
+  const PICK_HINT = TOUCH ? 'Tap to choose a video or image…' : 'Click to choose a video or image from your computer…';
+  document.getElementById('pick-text').textContent = PICK_HINT;
   function choose(file) {
     chosen = file || null;
     document.getElementById('pick-text').textContent = chosen
-      ? `${chosen.name} · ${(chosen.size / 1e6).toFixed(chosen.size < 1e6 ? 2 : 1)} MB · click to change`
-      : 'Click to choose a video or image from your computer…';
+      ? `${chosen.name} · ${(chosen.size / 1e6).toFixed(chosen.size < 1e6 ? 2 : 1)} MB · ${TOUCH ? 'tap' : 'click'} to change`
+      : PICK_HINT;
     pick.classList.toggle('chosen', !!chosen);
   }
   fileInput.addEventListener('change', () => choose(fileInput.files[0]));

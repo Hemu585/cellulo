@@ -93,6 +93,17 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 - The page re-computes the SHA-256 with the browser's Web Crypto before showing anything.
 - An unfinished upload is refused before any chunk is read.
 
+### Responsive layout (checked 24 Nov 2026)
+
+Measured in both modes at 320×568, 390×844, 844×390 (landscape phone), 768×1024, 1024×768, 1440×900, 1920×1080 and 2560×1440: no sideways scrolling and nothing past the screen edge.
+
+- The hero grid column is `minmax(0, 1fr)`, so a long file name cannot widen the page.
+- Touch screens (`pointer: coarse`): every control is at least 44 px tall, and the file box says "Tap to choose…".
+- Hover effects only apply where the device can hover, so they don't stick after a tap.
+- Short screens (`max-height: 700px`, and `480px` for landscape phones): tighter spacing, the headline sizes by height too, and the tagline pill is dropped below 480 px, so the input box stays on the first screen.
+- Big monitors (1800+ and 2400+ px wide): the page scales up, and the dot shapes grow with the free space.
+- `viewport-fit=cover` with safe-area padding keeps content clear of notches and the home indicator.
+
 ### Hosted on Vercel
 
 The same `web/index.html` is deployed as a static site to <https://cellulo-app.vercel.app> (Vercel project `cellulo`, linked in `web/`). The old address <https://sheets-video-store.vercel.app> permanently forwards (HTTP 308) to it. `cellulo.vercel.app` belongs to another Vercel project, so it could not be used.
