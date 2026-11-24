@@ -10,12 +10,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import quote
 
-from cellulo import download, get_service
+from cellulo import download, get_service, read_meta
 
 PORT = 8765
 PAGE = Path(__file__).with_name("web") / "index.html"
-HOSTS = {f"127.0.0.1:{PORT}", f"localhost:{PORT}"}
-ICONS = {"favicon.svg": "image/svg+xml", "icon-32.png": "image/png", "icon-192.png": "image/png", "apple-touch-icon.png": "image/png"}
+# the same security headers the hosted site sends, kept in one place
+HEADERS = [(h["key"], h["value"]) for h in json.loads(PAGE.with_name("vercel.json").read_text())["headers"][0]["headers"]]
+FILES = {"app.js": "text/javascript; charset=utf-8", "favicon.svg": "image/svg+xml", "icon-32.png": "image/png", "icon-192.png": "image/png", "apple-touch-icon.png": "image/png"}
 
 
 def sheet_id_from(text):
@@ -35,8 +36,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        for key, value in headers:
+        for key, value in HEADERS + list(headers):
             self.send_header(key, value)
         self.end_headers()
         self.wfile.write(body)
@@ -46,7 +46,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def local(self):
         # refuse other host names: a hostile site that points its own name at 127.0.0.1 could otherwise read restored files
-        if self.headers.get("Host") in HOSTS:
+        port = self.server.server_address[1]
+        if self.headers.get("Host") in {f"127.0.0.1:{port}", f"localhost:{port}"}:
             return True
         self.fail(403, "This page only answers on this computer")
         return False
@@ -57,8 +58,8 @@ class Handler(BaseHTTPRequestHandler):
         name = self.path.split("?")[0].lstrip("/")
         if self.path == "/":
             self.reply(200, PAGE.read_bytes(), "text/html; charset=utf-8")
-        elif name in ICONS:   # fixed list, so no path from the request ever reaches the file system
-            self.reply(200, PAGE.with_name(name).read_bytes(), ICONS[name])
+        elif name in FILES:   # fixed list, so no path from the request ever reaches the file system
+            self.reply(200, PAGE.with_name(name).read_bytes(), FILES[name])
         else:
             self.fail(404, "Not found")
 
@@ -67,11 +68,14 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path != "/api/restore":
             return self.fail(404, "Not found")
+        # browsers always send Origin on a cross-site POST; refuse other sites so they cannot start restores here
+        if self.headers.get("Origin", f"http://{self.headers['Host']}") != f"http://{self.headers['Host']}":
+            return self.fail(403, "Requests from other sites are refused")
         from googleapiclient.errors import HttpError
 
         try:
             length = int(self.headers.get("Content-Length") or 0)
-            if length > 4096:
+            if not 0 <= length <= 4096:
                 return self.fail(413, "Request too large")
             sheet = sheet_id_from(json.loads(self.rfile.read(length))["sheet"])
             meta, data = download(get_service(), sheet)
@@ -90,7 +94,7 @@ class Handler(BaseHTTPRequestHandler):
             ("X-Cellulo-Name", quote(name)),
             ("X-Cellulo-Mime", quote(str(meta["mime_type"]))),
             ("X-Cellulo-Sha256", str(meta["sha256"])),
-            ("X-Cellulo-Chunks", str(meta["chunk_count"])),
+            ("X-Cellulo-Chunks", str(read_meta(meta)[0])),
         ])
 
 

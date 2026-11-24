@@ -9,6 +9,7 @@ Last updated: 23 Nov 2026.
 - [x] `README.md`, `docs/AUTH_SETUP.md`, `docs/DESIGN.md`, this file
 - [x] `cellulo.py`: `upload` and `download` commands
 - [x] `test_cellulo.py`: offline tests, all passing
+- [x] `test_web.py`: local server checks (host, origin, body size, file list, security headers), all passing
 - [x] Sample clip `sample.mp4`, 903,473 bytes (not committed)
 - [x] Guards checked by hand: missing credentials, missing file, over the cap, cap above 25
 
