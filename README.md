@@ -48,7 +48,7 @@ One file per spreadsheet. Images work the same way as videos.
 
 <https://cellulo-app.vercel.app> uploads and restores in the browser; nothing to install.
 
-**Upload:** click **Attach a video** in the box (or drop a file on it), press **Upload** and sign in with your own Google account. The file goes into a new spreadsheet in your own Google Drive. With **Anyone with the link can restore it** ticked (the default), the page then shows a link you can send to anyone.
+**Upload:** click **Attach a file** in the box (or drop a file on it), press **Upload** and sign in with your own Google account. The file goes into a new spreadsheet in your own Google Drive. With **Anyone with the link can restore it** ticked (the default), the page then shows a link you can send to anyone.
 
 - The site asks only for access to files it creates itself, not the rest of your Drive.
 - Limit 100 MB.

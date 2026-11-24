@@ -209,18 +209,18 @@
   <canvas id="flow" aria-hidden="true"></canvas>
   <div class="stack">
     <p class="pill" style="--i:0"><i></i>A simpler way to save video</p>
-    <h1 style="--i:1">Your video.<br><em>One link</em> away.</h1>
+    <h1 style="--i:1">Your file is<br><em>one link</em> away.</h1>
     <form class="composer" id="form" style="--i:2">
       <label class="sr-only" for="link">Video link</label>
       <textarea id="link" rows="2" autocomplete="off" spellcheck="false" placeholder="Paste your video link here&hellip;"></textarea>
       <div class="bar">
         <!-- a label for the file input opens the system file picker natively; a scripted click on a hidden input does not in every browser -->
-        <input id="file" type="file" accept="video/*,image/*" class="sr-only">
+        <input id="file" type="file" class="sr-only">
         <label class="attach" id="pick" for="file">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20.5 11.6 12.3 19.8a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.6 8.6a1.7 1.7 0 0 1-2.5-2.5l7.8-7.8"/>
           </svg>
-          <span>Attach a video</span>
+          <span>Attach a file</span>
         </label>
         <span class="chip" id="chip" hidden>
           <span id="chip-name"></span>
@@ -673,7 +673,7 @@
     updateAction();
     if (chosen) return startUpload();
     const link = input.value.trim();
-    if (!link) return say('Paste a video link, or attach a video to upload.', true);
+    if (!link) return say('Paste a link, or attach a file to upload.', true);
     sent.hidden = true;
     busy(true); say('Restoring from Google Sheets');
     try {
