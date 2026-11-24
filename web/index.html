@@ -45,7 +45,6 @@
     padding: clamp(18px, 3.4vh, 36px) clamp(20px, 2.5vw, 44px);
   }
   .brand { font-size: clamp(1.08rem, 1.25vw, 1.34rem); letter-spacing: -0.01em; color: var(--ink); }
-  .route { font-family: var(--mono); font-size: clamp(0.76rem, 0.9vw, 0.92rem); font-weight: 500; letter-spacing: 0.06em; color: var(--slate); white-space: nowrap; }
 
   /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it */
   .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(24px, 5vh, 64px) 20px clamp(24px, 4vh, 48px); }
@@ -147,18 +146,12 @@
 
   [hidden] { display: none !important; }
 
-  footer {
-    padding: clamp(16px, 3vh, 32px) clamp(20px, 2.5vw, 44px);
-    text-align: right; font-family: var(--mono); font-size: 0.88rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate);
-  }
 
   @media (max-width: 600px) {
     .composer { padding: 16px 14px 14px 16px; border-radius: 16px; }
     .attach { margin-left: -6px; }
     .caption { letter-spacing: 0.1em; }
     .meta .actions, .meta .button, .ghost { width: 100%; }
-    .route { letter-spacing: 0.03em; }
-    footer { text-align: center; }
   }
   /* touch screens: every control at least 44px tall */
   @media (pointer: coarse) {
@@ -176,7 +169,6 @@
     h1 { margin-top: 12px; }
     .composer { margin-top: 16px; min-height: 118px; }
     .caption { margin-top: 16px; }
-    footer { padding-top: 12px; padding-bottom: 14px; }
   }
   @media (max-height: 480px) {
     .pill { display: none; }
@@ -202,7 +194,6 @@
 <body>
 <header class="top">
   <span class="brand">Cellulo</span>
-  <span class="route">VIDEO &rarr; SHEETS</span>
 </header>
 
 <main class="hero">
@@ -258,7 +249,6 @@
   </div>
 </main>
 
-<footer>Cellulo</footer>
 
 <script>
 (() => {
