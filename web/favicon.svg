@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="130 141 1000 1000">
+  <style>
+    .top { fill: #122c3f; } .bottom { fill: #3e6480; }
+    /* dark tab bars: lighter shades so the navy half doesn't disappear */
+    @media (prefers-color-scheme: dark) { .top { fill: #c9dae8; } .bottom { fill: #6f9bbd; } }
+  </style>
+  <path class="top" d="M588 143H1094L817 437H690L206 832C178 856 158 893 161 962C148 940 142 912 142 880V608C142 560 160 515 200 483Z"/>
+  <path class="bottom" d="M398 724L538 888H1120L932 1140H388C352 1140 320 1128 296 1106L212 1028C168 988 172 902 232 860Z"/>
+</svg>

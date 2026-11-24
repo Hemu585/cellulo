@@ -100,6 +100,15 @@ Follows the owner's reference image: "Cellulo" centred at the top, an orange-dot
 - One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a file", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
 - The flow lines meet in a point just outside each side of the box. A dot **video icon** (rounded screen with a play button) on one side and a dot **grid** on the other trade shapes in a loop.
 
+### Browser tab icon (24 Nov 2026)
+
+The owner's C logo (navy top, blue bottom) is the tab icon.
+
+- `web/favicon.svg`: the logo redrawn as two vector paths, so it stays sharp at 16 px. In a dark browser it switches to lighter shades (`prefers-color-scheme: dark`), because the navy half disappears on dark tab bars.
+- `web/icon-32.png` and `web/icon-192.png`: cut from the owner's original file, for browsers that don't use SVG icons.
+- `web/apple-touch-icon.png`: 180 px, logo on the page colour, for phone home screens.
+- The local server (`web.py`) serves only these four file names; Vercel serves them from `web/`.
+
 ### Responsive layout (checked 24 Nov 2026)
 
 Measured with the box empty and with a file attached, at 320×568, 390×844, 844×390 (landscape phone), 768×1024, 1024×768, 1440×900, 1920×1080 and 2560×1440: no sideways scrolling and nothing past the screen edge.

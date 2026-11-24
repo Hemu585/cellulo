@@ -15,6 +15,7 @@ from sheetvid import download, get_service
 PORT = 8765
 PAGE = Path(__file__).with_name("web") / "index.html"
 HOSTS = {f"127.0.0.1:{PORT}", f"localhost:{PORT}"}
+ICONS = {"favicon.svg": "image/svg+xml", "icon-32.png": "image/png", "icon-192.png": "image/png", "apple-touch-icon.png": "image/png"}
 
 
 def sheet_id_from(text):
@@ -53,8 +54,11 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self.local():
             return
+        name = self.path.split("?")[0].lstrip("/")
         if self.path == "/":
             self.reply(200, PAGE.read_bytes(), "text/html; charset=utf-8")
+        elif name in ICONS:   # fixed list, so no path from the request ever reaches the file system
+            self.reply(200, PAGE.with_name(name).read_bytes(), ICONS[name])
         else:
             self.fail(404, "Not found")
 
