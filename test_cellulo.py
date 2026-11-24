@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from sheetvid import BATCH, CHUNK, assemble, download, split_chunks, upload
+from cellulo import BATCH, CHUNK, assemble, download, split_chunks, upload
 from web import sheet_id_from
 
 _range = range  # the fake's methods must take a parameter named `range`, like the real API
@@ -19,8 +19,8 @@ def stored(data, size=10):
     """Meta and rows as the sheet would hold them for `data`."""
     chunks = split_chunks(base64.b64encode(data).decode(), size)
     meta = {
-        "filename": "a.mp4",
-        "mime_type": "video/mp4",
+        "filename": "a.pdf",
+        "mime_type": "application/pdf",
         "byte_size": len(data),
         "chunk_count": len(chunks),
         "sha256": hashlib.sha256(data).hexdigest(),
@@ -29,7 +29,7 @@ def stored(data, size=10):
 
 
 class FakeSheets:
-    """In-memory stand-in for the Sheets service: only the calls sheetvid makes."""
+    """In-memory stand-in for the Sheets service: only the calls cellulo makes."""
 
     def __init__(self, rows=1000):
         self.tabs = {"meta": {}, "chunks": {}}  # tab -> {(row, column): value}
@@ -102,7 +102,7 @@ class SheetLinkTest(unittest.TestCase):
             self.assertEqual(sheet_id_from(text), self.ID)
 
     def test_rejects_other_text(self):
-        for text in ("", "hello", "https://example.com/video.mp4", "../../etc"):
+        for text in ("", "hello", "https://example.com/file.pdf", "../../etc"):
             with self.assertRaisesRegex(ValueError, "Google Sheets link"):
                 sheet_id_from(text)
 
@@ -178,7 +178,7 @@ class RoundTripTest(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
-        self.path = Path(folder.name) / "clip.mp4"
+        self.path = Path(folder.name) / "clip.pdf"
         self.data = os.urandom(800_000)
         self.path.write_bytes(self.data)
         self.svc = FakeSheets()
@@ -188,8 +188,8 @@ class RoundTripTest(unittest.TestCase):
         self.assertGreater(self.meta["chunk_count"], BATCH)
         meta, data = download(self.svc, self.sheet_id)
         self.assertEqual(data, self.data)
-        self.assertEqual(meta["filename"], "clip.mp4")
-        self.assertEqual(meta["mime_type"], "video/mp4")
+        self.assertEqual(meta["filename"], "clip.pdf")
+        self.assertEqual(meta["mime_type"], "application/pdf")
         self.assertEqual(meta["sha256"], hashlib.sha256(self.data).hexdigest())
 
     def test_deleted_row_is_rejected(self):

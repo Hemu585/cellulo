@@ -1,6 +1,6 @@
 # Cellulo
 
-Proof of concept: store a small video or image **inside Google Sheets cells** as Base64 text, then restore the identical file. No Google Drive link; the file's bytes live in the cells.
+Store a small file of any type **inside Google Sheets cells** as Base64 text, then restore the identical file. No Google Drive link; the file's bytes live in the cells.
 
 ## How it works
 
@@ -18,20 +18,20 @@ Details: [docs/DESIGN.md](docs/DESIGN.md).
 pip install -r requirements.txt
 ```
 
-2. Create your Google sign-in file by following [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md). It ends up at `C:\Users\<you>\.sheetvid\credentials.json`, outside this folder.
+2. Create your Google sign-in file by following [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md). It ends up at `C:\Users\<you>\.cellulo\credentials.json`, outside this folder.
 
 ## Use
 
 Upload. Creates a new spreadsheet and prints its link and ID:
 
 ```powershell
-python sheetvid.py upload sample.mp4
+python cellulo.py upload sample.mp4
 ```
 
 Download. Restores the file and prints both checksums:
 
 ```powershell
-python sheetvid.py download --sheet SPREADSHEET_ID -o restored.mp4
+python cellulo.py download --sheet SPREADSHEET_ID -o restored.mp4
 ```
 
 Options:
@@ -42,7 +42,7 @@ Options:
 | `--max-mb N` | upload | Raise the size cap. Default 1, at most 100. |
 | `-o PATH` | download | Where to save. Default is the original filename. |
 
-One file per spreadsheet. Images work the same way as videos.
+One file per spreadsheet. Any type of file works.
 
 ## Hosted page
 
@@ -52,9 +52,9 @@ One file per spreadsheet. Images work the same way as videos.
 
 - The site asks only for access to files it creates itself, not the rest of your Drive.
 - Limit 100 MB.
-- While the Google app is in Testing, only test users can sign in. Add people under Google Auth Platform, Audience, Test users in the `sheetvid-poc` project.
+- While the Google app is in Testing, only test users can sign in. Add people under Google Auth Platform, Audience, Test users in the Google Cloud project Cellulo (project ID `sheetvid-poc`, which Google never lets you rename).
 
-**Restore:** paste the sheet link into the same box and press **Restore** (or Enter). The button changes from Upload to Restore as soon as you paste. This works for sheets shared as **Anyone with the link** (Viewer); sheets uploaded with `sheetvid.py` must be shared by hand in Google Sheets first.
+**Restore:** paste the sheet link into the same box and press **Restore** (or Enter). The button changes from Upload to Restore as soon as you paste. This works for sheets shared as **Anyone with the link** (Viewer); sheets uploaded with `cellulo.py` must be shared by hand in Google Sheets first.
 
 - The browser reads the cells straight from Google; no server is involved, so there is no size limit beyond the tool's 100 MB.
 - Private sheets are refused with a message saying how to share them.
@@ -71,7 +71,7 @@ A page for restoring by link, including private sheets, with nothing to type in 
 python web.py
 ```
 
-Open <http://127.0.0.1:8765>, paste a Google Sheets link (or just the spreadsheet ID) and press **Restore**. The video or image appears on the page with a Download button. The page re-computes the SHA-256 in your browser and only shows the file if it matches.
+Open <http://127.0.0.1:8765>, paste a Google Sheets link (or just the spreadsheet ID) and press **Restore**. Images and playable media get a preview, and every file gets a Download button. The page re-computes the SHA-256 in your browser and only shows the file if it matches.
 
 - It signs in as you, with the same credentials as the commands above, so it opens the same spreadsheets: the ones this tool created.
 - It listens on this computer only. For sharing, use the hosted page above.

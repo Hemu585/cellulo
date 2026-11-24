@@ -1,7 +1,7 @@
 """Local web page that restores a file from a Google Sheets link.
 
 Run:  python web.py   then open http://127.0.0.1:8765
-It signs in as you (same credentials as sheetvid.py), so it only listens on this computer.
+It signs in as you (same credentials as cellulo.py), so it only listens on this computer.
 """
 import json
 import os
@@ -10,7 +10,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import quote
 
-from sheetvid import download, get_service
+from cellulo import download, get_service
 
 PORT = 8765
 PAGE = Path(__file__).with_name("web") / "index.html"
@@ -87,10 +87,10 @@ class Handler(BaseHTTPRequestHandler):
         name = os.path.basename(str(meta["filename"])) or "restored"
         # always octet-stream: the stored MIME type is untrusted, the page decides how to show it
         self.reply(200, data, "application/octet-stream", [
-            ("X-Sheetvid-Name", quote(name)),
-            ("X-Sheetvid-Mime", quote(str(meta["mime_type"]))),
-            ("X-Sheetvid-Sha256", str(meta["sha256"])),
-            ("X-Sheetvid-Chunks", str(meta["chunk_count"])),
+            ("X-Cellulo-Name", quote(name)),
+            ("X-Cellulo-Mime", quote(str(meta["mime_type"]))),
+            ("X-Cellulo-Sha256", str(meta["sha256"])),
+            ("X-Cellulo-Chunks", str(meta["chunk_count"])),
         ])
 
 

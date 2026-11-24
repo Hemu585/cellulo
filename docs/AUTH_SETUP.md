@@ -2,13 +2,13 @@
 
 About 10 minutes, once. You create a small private "app" in your own Google account so the tool can sign in as you. It costs nothing.
 
-At the end you will have one file: `C:\Users\<you>\.sheetvid\credentials.json`.
+At the end you will have one file: `C:\Users\<you>\.cellulo\credentials.json`.
 
 ## 1. Create a project
 
 1. Open <https://console.cloud.google.com/> and sign in with the Google account that should own the spreadsheets.
 2. Click the project picker at the top → **New project**.
-3. Name it `sheetvid-poc` → **Create**. Make sure it is selected in the project picker afterwards.
+3. Name it `cellulo` → **Create**. Make sure it is selected in the project picker afterwards.
 
 ## 2. Turn on the Sheets API
 
@@ -18,7 +18,7 @@ At the end you will have one file: `C:\Users\<you>\.sheetvid\credentials.json`.
 ## 3. Set up the consent screen
 
 1. Menu → **Google Auth Platform** (or open <https://console.cloud.google.com/auth/overview>) → **Get started**.
-2. **App information:** app name `sheetvid`, support email = your address.
+2. **App information:** app name `Cellulo`, support email = your address.
 3. **Audience:** choose **External**.
 4. **Contact information:** your email. Agree to the policy → **Create**.
 5. Open **Audience** in the left menu → **Test users** → **Add users** → type your own Gmail address, press Enter → **Save**.
@@ -29,7 +29,7 @@ Without a saved test user, sign-in fails with `Error 403: access_denied`.
 ## 4. Create the sign-in client
 
 1. Left menu → **Clients** → **Create client**.
-2. Application type: **Desktop app**. Name: `sheetvid`. → **Create**.
+2. Application type: **Desktop app**. Name: `cellulo-desktop`. → **Create**.
 3. In the dialog that appears, click **Download JSON** straight away. Google may not show the secret again later; if you miss it, create another client.
 
 ## 5. Put the file in place
@@ -37,19 +37,19 @@ Without a saved test user, sign-in fails with `Error 403: access_denied`.
 Create the folder:
 
 ```powershell
-New-Item -ItemType Directory -Force "$HOME\.sheetvid"
+New-Item -ItemType Directory -Force "$HOME\.cellulo"
 ```
 
 Move the newest download there and rename it (this picks the latest one if you have several `client_secret` files):
 
 ```powershell
-Get-ChildItem "$HOME\Downloads\client_secret_*.json" | Sort-Object LastWriteTime | Select-Object -Last 1 | Move-Item -Destination "$HOME\.sheetvid\credentials.json"
+Get-ChildItem "$HOME\Downloads\client_secret_*.json" | Sort-Object LastWriteTime | Select-Object -Last 1 | Move-Item -Destination "$HOME\.cellulo\credentials.json"
 ```
 
 ## 6. First run
 
 ```powershell
-python sheetvid.py upload sample.mp4
+python cellulo.py upload sample.mp4
 ```
 
 1. Your browser opens. Pick your account.
@@ -65,7 +65,7 @@ python sheetvid.py upload sample.mp4
 ## Keeping it safe
 
 - `credentials.json` and `token.json` are keys to that permission. Do not share, email or commit them. They sit outside the project folder on purpose.
-- To cut off access: <https://myaccount.google.com/connections> → `sheetvid` → remove. Then delete `token.json`.
+- To cut off access: <https://myaccount.google.com/connections> → `Cellulo` → remove. Then delete `token.json`.
 
 ## Signing in again
 

@@ -1,4 +1,4 @@
-"""Store one small file (video or image) in Google Sheets cells as Base64 text, and restore it."""
+"""Cellulo: store one small file in Google Sheets cells as Base64 text, and restore it."""
 import argparse
 import base64
 import hashlib
@@ -11,7 +11,7 @@ CHUNK = 40_000  # characters per cell; Sheets rejects cells over 50,000
 BATCH = 25  # rows per API call: about 1 MB, under Google's recommended 2 MB payload
 MAX_MB = 100  # Google refuses a spreadsheet at about 110 MB of file and then blocks all edits to it (measured Nov 2026)
 RETRIES = 6  # the client library retries 429 and 5xx with randomised exponential backoff
-HOME = Path.home() / ".sheetvid"  # credentials live outside the project folder
+HOME = Path.home() / ".cellulo"  # credentials live outside the project folder
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]  # only spreadsheets this tool created
 META_KEYS = ["filename", "mime_type", "byte_size", "chunk_count", "sha256"]
 
@@ -183,7 +183,7 @@ def main(argv=None):
             print(f"Stored {meta['filename']} ({meta['byte_size']:,} bytes, {meta['chunk_count']} chunks)")
             print(f"SHA-256:  {meta['sha256']}")
             print(f"Sheet:    https://docs.google.com/spreadsheets/d/{sheet_id}")
-            print(f"Restore:  python sheetvid.py download --sheet {sheet_id}")
+            print(f"Restore:  python cellulo.py download --sheet {sheet_id}")
         else:
             meta, data = download(get_service(), args.sheet)
             name = args.output or os.path.basename(str(meta["filename"]))

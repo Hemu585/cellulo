@@ -30,8 +30,8 @@ Tab `meta`, key in column A and value in column B:
 
 | A | B |
 |---|---|
-| filename | sample.mp4 |
-| mime_type | video/mp4 |
+| filename | report.pdf |
+| mime_type | application/pdf |
 | byte_size | 912345 |
 | chunk_count | 31 |
 | sha256 | 64 hex characters |
@@ -87,18 +87,21 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 
 `web.py` is a small local server (Python standard library) around the same `download` function; `web/index.html` is the page.
 
-- `POST /api/restore` with `{"sheet": "<link or ID>"}` returns the file bytes, with name, MIME type, SHA-256 and chunk count in `X-Sheetvid-*` headers.
-- The stored MIME type is not trusted: the bytes are always served as `application/octet-stream`, and the page shows them only in a `<video>` or `<img>` when the type starts with `video/` or `image/`.
+- `POST /api/restore` with `{"sheet": "<link or ID>"}` returns the file bytes, with name, MIME type, SHA-256 and chunk count in `X-Cellulo-*` headers.
+- The stored MIME type is not trusted: the bytes are always served as `application/octet-stream`, and the page previews them only when the type is an image or playable media; everything else is download-only.
 - The server binds to 127.0.0.1 and rejects requests whose `Host` is not this computer, because it acts with the owner's Google sign-in.
 - The page re-computes the SHA-256 with the browser's Web Crypto before showing anything.
 - An unfinished upload is refused before any chunk is read.
 
 ### Page design (24 Nov 2026)
 
-Follows the owner's reference image: "Cellulo" centred at the top, an orange-dot tagline "A simpler way to share files", the serif headline "Your file is one link away.", one composer box and a mono caption. No text on the right-hand side (owner asked to remove "VIDEO → SHEETS" and the "CELLULO" footer, 24 Nov 2026).
+Follows the owner's reference image: "Cellulo" centred at the top, an orange-dot tagline "A simpler way to share files", the headline "Your file is one link away.", one composer box and a mono caption, all centred in the screen. Nothing on the right-hand side. The product stores any file, so the page never names a file type.
 
 - One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a file", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
-- The flow lines meet in a point just outside each side of the box. A dot **video icon** (rounded screen with a play button) on one side and a dot **grid** on the other trade shapes in a loop.
+- The flow lines meet in a point just outside each side of the box. The earlier dot shapes and their morph were removed at the owner's request.
+- Fonts: **Newsreader** for the headline (optical sizes, italic for "one link"), **Schibsted Grotesk** for the interface, **Fragment Mono** for small labels. The headline is 36 px on small phones and 67 px at 1678 px wide, capped at 72 px (larger only on 1800+ px monitors, where the whole page scales up).
+- Web Interface Guidelines applied: "…" on loading states, non-breaking spaces in sizes, tabular numbers in the progress line, `color-scheme: light`, `touch-action: manipulation` on controls, no transitions on colour or shadow, `translate="no"` on the brand.
+- A small pause button at the bottom left stops the flow animation (moving content that runs longer than 5 seconds needs one). The choice is remembered in the browser; reduced-motion visitors get a still frame and no button.
 
 ### Browser tab icon (24 Nov 2026)
 
@@ -117,26 +120,26 @@ Measured with the box empty and with a file attached, at 320×568, 390×844, 844
 - Touch screens (`pointer: coarse`): every control, including the remove-file button, is at least 44 px tall.
 - Hover effects only apply where the device can hover, so they don't stick after a tap.
 - Short screens (`max-height: 700px`, and `480px` for landscape phones): tighter spacing, the headline sizes by height too, and the tagline pill is dropped below 480 px, so the input box stays on the first screen.
-- Big monitors (1800+ and 2400+ px wide): the page scales up, and the dot shapes grow with the free space.
+- Big monitors (1800+ and 2400+ px wide): the page scales up.
 - `viewport-fit=cover` with safe-area padding keeps content clear of notches and the home indicator.
 
 ### Hosted on Vercel
 
-The same `web/index.html` is deployed as a static site to <https://cellulo-app.vercel.app> (Vercel project `cellulo`, linked in `web/`). The old address <https://sheets-video-store.vercel.app> permanently forwards (HTTP 308) to it. `cellulo.vercel.app` belongs to another Vercel project, so it could not be used.
+The same `web/index.html` is deployed as a static site to <https://cellulo-app.vercel.app> (Vercel project `cellulo`, linked in `web/`). The earlier address was removed when the project was renamed. `cellulo.vercel.app` belongs to another Vercel project, so it could not be used.
 
 - When the page is not on `127.0.0.1` or `localhost`, it reads the sheet itself, in the browser, through the Sheets API with an API key, and applies the same checks as `assemble()`.
 - This only works for sheets shared as "anyone with the link". That was the owner's choice on 24 Nov 2026, over putting their Google sign-in on a public server.
 - Why not a Vercel function: function responses are capped at 4.5 MB, and the owner's sign-in would let any visitor restore any sheet the tool made.
-- API key `sheetvid-web` in Cloud project `sheetvid-poc`: restricted to the Google Sheets API and to `https://cellulo-app.vercel.app/*` and `https://sheets-video-store.vercel.app/*`. Checked: allowed from the site, 403 from another site or with no referrer.
+- API key `cellulo-web` in Google Cloud project Cellulo (ID `sheetvid-poc`): restricted to the Google Sheets API and to `https://cellulo-app.vercel.app/*`. Checked: allowed from the site, 403 from another site or with no referrer.
 - Reads 100 rows (about 4 MB) per request and backs off on HTTP 429, so 100 MB takes about 34 reads.
 
 ### Upload in the browser
 
-- The visitor signs in with their own Google account through Google Identity Services (token popup, OAuth client `sheetvid-web` in `sheetvid-poc`, allowed origins: `https://cellulo-app.vercel.app`, the old `https://sheets-video-store.vercel.app`, `http://localhost:8765`, `http://127.0.0.1:8765`). The consent screen shows the app name Cellulo). Scope `drive.file`. The owner chose this on 24 Nov 2026: each user uploads into their own Drive.
-- Same layout and order as `sheetvid.py`: create the spreadsheet (the `chunks` tab is created with enough rows), write chunks 25 rows per call with RAW, write `meta` last.
-- If the share box is ticked, a Drive API call then gives "anyone with the link" reader access. The Google Drive API is enabled in `sheetvid-poc` for this.
+- The visitor signs in with their own Google account through Google Identity Services (token popup, OAuth client `cellulo-web` in the Cellulo project, allowed origins: `https://cellulo-app.vercel.app`, `http://localhost:8765`, `http://127.0.0.1:8765`). The consent screen shows the app name Cellulo). Scope `drive.file`. The owner chose this on 24 Nov 2026: each user uploads into their own Drive.
+- Same layout and order as `cellulo.py`: create the spreadsheet (the `chunks` tab is created with enough rows), write chunks 25 rows per call with RAW, write `meta` last.
+- If the share box is ticked, a Drive API call then gives "anyone with the link" reader access. The Google Drive API is enabled in the Cellulo project for this.
 - The sign-in window has to open from the click itself, so the page asks for the token before any other await.
-- Measured: `sheetvid.py` (desktop OAuth client) can open a sheet the website (web OAuth client) created, and the reverse is true for public reading, so both clients share `drive.file` access inside the same Cloud project.
+- Measured: `cellulo.py` (desktop OAuth client) can open a sheet the website (web OAuth client) created, and the reverse is true for public reading, so both clients share `drive.file` access inside the same Cloud project.
 - The app is in Testing: only listed test users can sign in. Letting anyone sign in means publishing the app in Google Auth Platform, which may need a privacy policy and brand verification.
 
 ## Rate limits
@@ -168,13 +171,13 @@ Every call runs with `execute(num_retries=6)`. The Google client library retries
 | sample.mp4 | 0.9 MB | 31 | 6.0 s | 5.2 s | yes |
 | sample5.mp4 | 4.8 MB | 160 | 15.5 s | 10.3 s | yes, about 3 s |
 | sample25.mp4 | 24.0 MB | 802 | 47.9 s | 33.1 s | yes, within seconds |
-| 50 MB video | 50.1 MB | 1,671 | 71 s | 56 s | not checked |
-| 70 MB video | 70.1 MB | 2,337 | 120 s | 64 s | not checked |
-| 80 MB video | 80.1 MB | 2,671 | 117 s | 107 s | not checked |
-| 90 MB video | 90.2 MB | 3,006 | 132 s | 131 s | not checked |
-| 99 MB video, fresh spreadsheet | 99.3 MB | 3,312 | 153 s | 136 s | not checked |
-| 120 MB video, reused spreadsheet | 120.1 MB | 4,005 | refused after 159 s | n/a | n/a |
-| 130 MB video, fresh spreadsheet | 130.1 MB | 4,338 | refused after 185 s | n/a | n/a |
+| 50 MB file | 50.1 MB | 1,671 | 71 s | 56 s | not checked |
+| 70 MB file | 70.1 MB | 2,337 | 120 s | 64 s | not checked |
+| 80 MB file | 80.1 MB | 2,671 | 117 s | 107 s | not checked |
+| 90 MB file | 90.2 MB | 3,006 | 132 s | 131 s | not checked |
+| 99 MB file, fresh spreadsheet | 99.3 MB | 3,312 | 153 s | 136 s | not checked |
+| 120 MB file, reused spreadsheet | 120.1 MB | 4,005 | refused after 159 s | n/a | n/a |
+| 130 MB file, fresh spreadsheet | 130.1 MB | 4,338 | refused after 185 s | n/a | n/a |
 
 The 24 MB to 90 MB and 120 MB runs all reused one spreadsheet; the others each used a fresh one.
 
