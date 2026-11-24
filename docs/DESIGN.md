@@ -95,7 +95,7 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 
 ### Page design (24 Nov 2026)
 
-Follows the owner's reference image: "Cellulo" centred at the top, an orange-dot tagline "A simpler way to share files", the headline "Your file is one link away.", one composer box and a mono caption, all centred in the screen. Nothing on the right-hand side. The product stores any file, so the page never names a file type.
+Follows the owner's reference image: "Cellulo" with the C logo centred at the top (a home link; the logo is drawn inline in the original navy and blue, about 1.2x the text size), an orange-dot tagline "A simpler way to share files", the headline "Your file is one link away.", one composer box and a mono caption, all centred in the screen. Nothing on the right-hand side. The product stores any file, so the page never names a file type.
 
 - One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a file", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
 - The flow lines meet in a point just outside each side of the box. The earlier dot shapes and their morph were removed at the owner's request.

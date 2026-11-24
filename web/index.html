@@ -53,7 +53,13 @@
     display: flex; align-items: center; justify-content: center; gap: 16px;
     padding: clamp(18px, 3.4vh, 36px) clamp(20px, 2.5vw, 44px);
   }
-  .brand { font-size: clamp(1.08rem, 1.25vw, 1.3rem); font-weight: 500; letter-spacing: -0.015em; color: var(--ink); }
+  /* logo + name: the mark is a touch taller than the capitals, and the extra padding makes the tap target 44px without moving anything */
+  .brand {
+    display: inline-flex; align-items: center; gap: 0.42em; margin: -10px -12px; padding: 10px 12px; border-radius: 12px;
+    font-size: clamp(1.08rem, 1.25vw, 1.3rem); font-weight: 500; letter-spacing: -0.015em; color: var(--ink); text-decoration: none;
+  }
+  .brand .mark { width: 1.18em; height: 1.18em; flex: none; }
+  .brand span { line-height: 1; padding-top: 0.06em; }   /* sits the text on the mark's optical centre */
 
   /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it */
   .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(64px, 10vh, 100px) 20px; }   /* equal above and below, and clear of the top bar */
@@ -126,6 +132,7 @@
     .attach:hover { background: rgba(31, 90, 138, 0.07); color: var(--ink); }
     .chip-x:hover { background: rgba(15, 42, 68, 0.08); color: var(--ink); }
     .ghost:hover { background: rgba(31, 90, 138, 0.07); }
+    .brand:hover { background: rgba(31, 90, 138, 0.06); }
     .motion:hover { opacity: 1; background: rgba(31, 90, 138, 0.07); }
   }
   .arrow { transition: transform 0.2s; }
@@ -139,7 +146,7 @@
   .motion[aria-pressed="true"] .pause { display: none; }
   .motion[aria-pressed="true"] .play { display: inline; }
   .motion:focus-visible { opacity: 1; }
-  .go, .button, .ghost, .attach, .chip-x, .share, .motion { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .go, .button, .ghost, .attach, .chip-x, .share, .motion, .brand { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .go[disabled] { cursor: progress; background: #3a4f66; }
   :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
   .composer textarea:focus-visible { outline: 0; }
@@ -176,6 +183,7 @@
   }
   /* touch screens: every control at least 44px tall */
   @media (pointer: coarse) {
+    .brand { padding-block: 13px; margin-block: -13px; }
     .go, .button, .ghost { min-height: 46px; padding-inline: 22px; }
     .attach { min-height: 44px; }
     .chip { min-height: 44px; }
@@ -214,7 +222,13 @@
 </head>
 <body>
 <header class="top">
-  <span class="brand" translate="no">Cellulo</span>
+  <a class="brand" href="/" translate="no">
+    <svg class="mark" viewBox="130 141 1000 1000" aria-hidden="true" focusable="false">
+      <path fill="#122c3f" d="M588 143H1094L817 437H690L206 832C178 856 158 893 161 962C148 940 142 912 142 880V608C142 560 160 515 200 483Z"/>
+      <path fill="#3e6480" d="M398 724L538 888H1120L932 1140H388C352 1140 320 1128 296 1106L212 1028C168 988 172 902 232 860Z"/>
+    </svg>
+    <span>Cellulo</span>
+  </a>
 </header>
 
 <main class="hero">
