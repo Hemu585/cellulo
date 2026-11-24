@@ -105,7 +105,7 @@ The same `web/index.html` is deployed as a static site to <https://cellulo-app.v
 
 ### Upload in the browser
 
-- The visitor signs in with their own Google account through Google Identity Services (token popup, OAuth client `sheetvid-web` in `sheetvid-poc`, allowed origins: the Vercel site, `http://localhost:8765`, `http://127.0.0.1:8765`). Scope `drive.file`. The owner chose this on 24 Nov 2026: each user uploads into their own Drive.
+- The visitor signs in with their own Google account through Google Identity Services (token popup, OAuth client `sheetvid-web` in `sheetvid-poc`, allowed origins: `https://cellulo-app.vercel.app`, the old `https://sheets-video-store.vercel.app`, `http://localhost:8765`, `http://127.0.0.1:8765`). The consent screen shows the app name Cellulo). Scope `drive.file`. The owner chose this on 24 Nov 2026: each user uploads into their own Drive.
 - Same layout and order as `sheetvid.py`: create the spreadsheet (the `chunks` tab is created with enough rows), write chunks 25 rows per call with RAW, write `meta` last.
 - If the share box is ticked, a Drive API call then gives "anyone with the link" reader access. The Google Drive API is enabled in `sheetvid-poc` for this.
 - The sign-in window has to open from the click itself, so the page asks for the token before any other await.
