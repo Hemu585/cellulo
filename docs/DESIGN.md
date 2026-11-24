@@ -85,13 +85,20 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 
 ## Web page
 
-`web.py` is a small local server (Python standard library) around the same `download` function; `web/index.html` is the page.
+`web.py` is a small local server (Python standard library) around the same `download` function; `web/index.html` is the page and `web/app.js` its script.
 
 - `POST /api/restore` with `{"sheet": "<link or ID>"}` returns the file bytes, with name, MIME type, SHA-256 and chunk count in `X-Cellulo-*` headers.
-- The stored MIME type is not trusted: the bytes are always served as `application/octet-stream`, and the page previews them only when the type is an image or playable media; everything else is download-only.
-- The server binds to 127.0.0.1 and rejects requests whose `Host` is not this computer, because it acts with the owner's Google sign-in.
+- The stored MIME type is not trusted: the bytes are always served as `application/octet-stream`. The page previews only PNG, JPEG, GIF, WebP, AVIF, MP4, WebM, Ogg and QuickTime. SVG is never previewed, because an SVG opened in its own tab runs script on the site's origin. The Download link always gets a separate `application/octet-stream` copy.
+- The server binds to 127.0.0.1 and rejects requests whose `Host` is not this computer, because it acts with the owner's Google sign-in. `POST /api/restore` also refuses another site's `Origin`, a negative or oversized body, and anything but the fixed list of page files.
 - The page re-computes the SHA-256 with the browser's Web Crypto before showing anything.
-- An unfinished upload is refused before any chunk is read.
+- An unfinished upload is refused before any chunk is read, and so is a `chunk_count` too large for `byte_size` (every chunk holds up to 30,000 bytes), so a tampered sheet cannot hang the reader.
+
+### Security headers (24 Nov 2026)
+
+`web/vercel.json` sets them for the hosted site, and `web.py` reads the same file, so both send the same set:
+
+- `Content-Security-Policy`: script only from this site and Google's sign-in library (no inline script, which is why the script lives in `app.js`); connections only to this site, `sheets.googleapis.com`, `www.googleapis.com` and Google sign-in; fonts from Google Fonts; images and media from this site or `blob:`; `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'none'`.
+- `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` (the API key's referrer lock still gets the site's origin), and a `Permissions-Policy` that turns off camera, microphone and location.
 
 ### Page design (24 Nov 2026)
 
@@ -119,7 +126,9 @@ Measured with the box empty and with a file attached, at 320×568, 390×844, 844
 - The hero grid column is `minmax(0, 1fr)`, so a long file name cannot widen the page.
 - Touch screens (`pointer: coarse`): every control, including the remove-file button, is at least 44 px tall.
 - Hover effects only apply where the device can hover, so they don't stick after a tap.
-- Short screens (`max-height: 700px`, and `480px` for landscape phones): tighter spacing, the headline sizes by height too, and the tagline pill is dropped below 480 px, so the input box stays on the first screen.
+- Short screens (`max-height: 700px`, and `480px` for landscape phones): tighter spacing, the headline sizes by height too, and the tagline pill is dropped below 480 px, so the input box stays on the first screen. At 568×320 nothing scrolls.
+- The tagline never wraps; on the narrowest phones (280 px) its text shrinks instead.
+- Resizing the window, rotating a phone, or moving the window to a screen with different scaling redraws the flow animation to fit.
 - Big monitors (1800+ and 2400+ px wide): the page scales up.
 - `viewport-fit=cover` with safe-area padding keeps content clear of notches and the home indicator.
 
@@ -149,7 +158,8 @@ Every call runs with `execute(num_retries=6)`. The Google client library retries
 ## File safety on download
 
 - Only the base name of the stored filename is used, so a doctored name cannot write outside the current folder.
-- An existing file is never overwritten; choose another name with `-o`.
+- An existing file is never overwritten (the file is opened in exclusive-create mode, so there is no gap between the check and the write); choose another name with `-o`.
+- `token.json` is written owner-only (mode 600) on macOS and Linux.
 
 ## Size cap
 

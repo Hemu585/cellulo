@@ -97,7 +97,7 @@ To let someone else download a file, share its spreadsheet publicly and send the
 
 ## Tests
 
-Offline, no Google account needed:
+Offline, no Google account needed (`test_cellulo.py` for storage, `test_web.py` for the local server's checks):
 
 ```powershell
 python -m unittest

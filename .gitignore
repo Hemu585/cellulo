@@ -9,6 +9,7 @@ client_secret*.json
 *.jpg
 *.jpeg
 *.png
+!web/*.png
 
 __pycache__/
 .vercel/

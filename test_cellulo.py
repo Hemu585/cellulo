@@ -15,7 +15,7 @@ from web import sheet_id_from
 _range = range  # the fake's methods must take a parameter named `range`, like the real API
 
 
-def stored(data, size=10):
+def stored(data, size=CHUNK):
     """Meta and rows as the sheet would hold them for `data`."""
     chunks = split_chunks(base64.b64encode(data).decode(), size)
     meta = {
@@ -117,7 +117,7 @@ class SplitTest(unittest.TestCase):
 
 class AssembleTest(unittest.TestCase):
     def setUp(self):
-        self.data = os.urandom(500)
+        self.data = os.urandom(100_000)   # four real-size chunks
         self.meta, self.rows = stored(self.data)
 
     def test_restores_from_shuffled_rows(self):
@@ -165,6 +165,13 @@ class AssembleTest(unittest.TestCase):
         self.meta["byte_size"] += 1
         with self.assertRaisesRegex(ValueError, "size mismatch"):
             assemble(self.meta, self.rows)
+
+    def test_rejects_impossible_chunk_count(self):
+        # a tampered sheet must not make the reader build a billion-entry set
+        for count in (10**12, -1):
+            self.meta["chunk_count"] = count
+            with self.assertRaisesRegex(ValueError, "does not fit"):
+                assemble(self.meta, self.rows)
 
     def test_rejects_incomplete_meta(self):
         del self.meta["sha256"]

@@ -26,9 +26,13 @@ def read_meta(meta):
     if absent:
         raise ValueError(f"no complete upload found (meta is missing: {', '.join(absent)})")
     try:
-        return int(meta["chunk_count"]), int(meta["byte_size"])
+        count, size = int(meta["chunk_count"]), int(meta["byte_size"])
     except (TypeError, ValueError):
         raise ValueError("meta is corrupt: chunk_count and byte_size must be whole numbers")
+    # every chunk holds up to 30,000 bytes; a huge count from a tampered sheet would otherwise exhaust memory
+    if size < 0 or not 0 <= count <= -(-size // (CHUNK * 3 // 4)) + 1:
+        raise ValueError("meta is corrupt: chunk_count does not fit byte_size")
+    return count, size
 
 
 def assemble(meta, rows):
@@ -89,6 +93,7 @@ def get_service():
             sys.exit(f"ERROR: {cred_file} not found. Follow docs/AUTH_SETUP.md first.")
         creds = InstalledAppFlow.from_client_secrets_file(cred_file, SCOPES).run_local_server(port=0)
     token_file.write_text(creds.to_json())
+    os.chmod(token_file, 0o600)   # the refresh token is a password: owner only on macOS/Linux
     return build("sheets", "v4", credentials=creds)
 
 
@@ -187,9 +192,11 @@ def main(argv=None):
         else:
             meta, data = download(get_service(), args.sheet)
             name = args.output or os.path.basename(str(meta["filename"]))
-            if not name or Path(name).exists():
+            try:
+                with open(name, "xb") as out:   # x: never overwrite, and no gap between checking and writing
+                    out.write(data)
+            except (OSError, ValueError):   # exists, a folder, or an impossible name
                 sys.exit(f"ERROR: {name!r} already exists or is not a usable name. Choose another with -o.")
-            Path(name).write_bytes(data)
             print(f"Restored {name} ({len(data):,} bytes, {meta['mime_type']})")
             print(f"SHA-256 stored:   {meta['sha256']}")
             print(f"SHA-256 restored: {hashlib.sha256(data).hexdigest()}")
