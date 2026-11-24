@@ -261,7 +261,8 @@
         <button class="go" id="go" type="submit"><span id="go-label">Upload</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
       </div>
     </form>
-    <p class="caption" id="status" role="status" style="--i:3">Paste a link. We&rsquo;ll take it from here.</p>
+    <!-- empty until there is progress or an error to report; keeps its line so the box doesn't jump -->
+    <p class="caption" id="status" role="status" style="--i:3"></p>
     <section class="result" id="sent" aria-label="Uploaded file" hidden>
       <div class="meta">
         <div>
@@ -523,7 +524,7 @@
     if (chosen) {
       say('Press Upload and sign in with your own Google account. The file stays in your Drive.');
       loadGis().catch(error => say(error.message, true));   // ready before the click, so the sign-in window may open
-    } else say('Paste a link. We’ll take it from here.');
+    } else say('');
   }
   fileInput.addEventListener('change', () => choose(fileInput.files[0]));
   document.getElementById('unpick').addEventListener('click', () => choose(null));
