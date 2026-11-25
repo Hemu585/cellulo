@@ -111,10 +111,10 @@ The page follows the owner's reference image and the hero part of its brief. Cel
   - **The file:** 11 s, H.264 High, CRF 25, `faststart`, 2.2 MB. The camera, figure and clouds don't move, so only the stream and the stars blend.
   - **Playback:** it plays with the native `loop` attribute. On first load it fades in once (0.8 s), when its first frame is ready, and never fades to black. In Chrome the longest freeze across two loop points was 25 ms, under one frame.
   - **Pause and reduced motion:** the pause button is remembered. Reduced-motion visitors get the first frame as a still, with no pause button. Coming back to the tab resumes playback.
-- **Headline font:** **Cormorant Garamond**, light 300 with italic 400 for "One link".
-  - Picked with the ui-ux-pro-max typography search (elegant and luxury pairings: Cormorant, Playfair Display, Bodoni Moda, Cinzel).
-  - Its airy, calligraphic strokes suit the night sky, it contrasts well with the Schibsted Grotesk interface, and it is narrow enough for one line.
-  - **One line:** the line is about 8.9 em long, so `font-size: min(7.2vw, 9.5vh, 4.5rem)` keeps it at about 64% of the screen width on phones and, on larger screens, about as wide as the search pill, with `white-space: nowrap`.
+- **Type:** **DM Sans** for everything, from the owner's chosen specimen ("calm product design").
+  - The headline is weight 400, with "One link" in 600 (not italic), line height 1.12 and tracking -0.025em.
+  - **Same width as the search pill:** the hero column is 36rem wide (`container-type: inline-size`), and the measured line is 9.09 em long. So `font-size: calc(100cqi / 9.18)` keeps the one-line headline as wide as the search pill at every size: 63 px on desktop, 37 px on a 390 px phone, within 3 px of the pill's edges.
+  - An earlier choice of Cormorant Garamond, picked with the ui-ux-pro-max typography search, was replaced at the owner's request.
 - **Search pill:** a `.liquid-glass` pill, max 36rem wide, holding a round attach button, the link field, and a white round send button with a black arrow. The arrow turns into a spinner while busy, and the visible label lives in a screen-reader-only span.
   - The attached file's chip and the share checkbox sit under the pill.
   - The extra bottom padding (up to 36vh) lifts the pill into the upper half of the screen.
@@ -135,7 +135,7 @@ The page follows the owner's reference image and the hero part of its brief. Cel
 
 - One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a file", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
 - The flow lines meet in a point just outside each side of the box. The earlier dot shapes and their morph were removed at the owner's request.
-- Fonts: **Cormorant Garamond** for the headline (light, italic for "One link"), **Schibsted Grotesk** for the interface. The headline stays on one line: `min(7.2vw, 9.5vh, 4.5rem)`.
+- Fonts: **DM Sans** throughout (headline 400 with 600 for "One link"), sized so the headline is exactly as wide as the search pill.
 - Web Interface Guidelines applied: "…" on loading states, non-breaking spaces in sizes, tabular numbers in the progress line, `color-scheme: light`, `touch-action: manipulation` on controls, no transitions on colour or shadow, `translate="no"` on the brand.
 - A small pause button at the bottom left stops the flow animation (moving content that runs longer than 5 seconds needs one). The choice is remembered in the browser; reduced-motion visitors get a still frame and no button.
 

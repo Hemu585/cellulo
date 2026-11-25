@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Schibsted+Grotesk:wght@400;500&family=Fragment+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #000;
@@ -20,9 +20,7 @@
     --muted: rgba(255, 255, 255, 0.62);
     --panel: rgba(8, 8, 12, 0.55);    /* result panels: liquid glass with a dark tint, so long text stays readable */
     --warn: #ffb8a3;
-    --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;   /* airy, calligraphic: suits the night sky; pairs with the grotesk */
-    --sans: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
-    --mono: "Fragment Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --sans: "DM Sans", "Segoe UI", system-ui, sans-serif;   /* one family for everything: calm, with a 400/600 weight contrast */
     color-scheme: dark;   /* the page is dark only: native controls and scrollbars match it */
   }
   * { box-sizing: border-box; }
@@ -90,22 +88,22 @@
   /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it.
      More room below than above lifts the content into the dark sky, clear of the figure. */
   .hero { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(80px, 12vh, 120px) 24px clamp(120px, 36vh, 400px); }
-  .stack { position: relative; z-index: 1; width: 100%; max-width: 640px; display: flex; flex-direction: column; align-items: center; text-align: center; text-shadow: 0 1px 18px rgba(0, 0, 0, 0.5); }
+  .stack { position: relative; z-index: 1; width: 100%; max-width: 36rem; container-type: inline-size; display: flex; flex-direction: column; align-items: center; text-align: center; text-shadow: 0 1px 18px rgba(0, 0, 0, 0.5); }
   .stack > * { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
 
   h1 {
     margin: 0; white-space: nowrap;
-    font-family: var(--display); font-weight: 300;
-    /* one line at every width: the line is about 8.9 em long, so 7.2vw fills ~64% of the screen; at most 4.5rem, about the search pill's width */
-    font-size: min(7.2vw, 9.5vh, 4.5rem); line-height: 1.05; letter-spacing: -0.01em;
+    font-family: var(--sans); font-weight: 400;
+    /* one line exactly as wide as the search pill: the line is 9.09 em long (measured), so 100cqi / 9.18 fills the column, with a hair of room for rounding on phones */
+    font-size: calc(100cqi / 9.18); line-height: 1.12; letter-spacing: -0.025em;
   }
-  h1 em { font-style: italic; font-weight: 400; }
+  h1 em { font-style: normal; font-weight: 600; }
 
   /* one pill for both jobs: paste a link to restore, or attach a file to upload */
   .search {
-    display: flex; align-items: center; gap: 10px; width: 100%; max-width: 36rem;
+    display: flex; align-items: center; gap: 10px; width: 100%;
     margin-top: clamp(20px, 3.6vh, 36px); padding: 8px; border-radius: 999px; text-shadow: none;
     background-color: rgba(0, 0, 0, 0.38);   /* smoked glass: the glowing stream rises behind the pill near the end of the clip */
   }
@@ -187,7 +185,7 @@
   .result video, .result img { display: block; width: 100%; max-height: 62vh; background: #050507; object-fit: contain; }
   .meta { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 20px 20px 24px; flex-wrap: wrap; }
   .meta h2 { margin: 0; font-size: 1.1rem; font-weight: 500; overflow-wrap: anywhere; }
-  .meta p { margin: 8px 0 0; font-family: var(--mono); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .meta p { margin: 8px 0 0; font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .meta .ok { color: #a6dcbc; }
   .meta .actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .meta .link-line { margin: 10px 0 0; font-family: var(--sans); font-size: 0.95rem; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
@@ -221,11 +219,9 @@
   /* big monitors: scale the whole page up instead of leaving a small island in the middle */
   @media (min-width: 1800px) and (min-height: 1000px) {
     html { font-size: 112.5%; }
-    .stack { max-width: 720px; }
   }
   @media (min-width: 2400px) and (min-height: 1300px) {
     html { font-size: 131.25%; }
-    .stack { max-width: 840px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .stack > * { animation: none; }
