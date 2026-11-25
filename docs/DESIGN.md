@@ -104,7 +104,9 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 
 The page follows the owner's reference image and its "Section 1" brief, reusing only the hero: there are no extra page sections, nav links, sign-up or social buttons. The brand stays centred at the top, as the owner chose earlier, and the wording keeps "file".
 
-- **Background:** the owner's chosen clip, loaded from its CloudFront address (1756x1176, 13 s, 13.5 MB; the CSP allows that host for media).
+- **Background:** `web/hero.mp4`, the owner's chosen clip, hosted with the site.
+  - The source was downloaded once from its CloudFront address: 1756x1176, 24 fps, 13 s, no audio, H.264 Main, 13.5 MB.
+  - It was re-encoded at the same size as H.264 High, CRF 25, with `faststart`: 2.7 MB, and frames compare at 0.98 SSIM.
   - It fills the screen, anchored at the bottom so the figure stays in view, over a black page.
   - `app.js` fades it in over 500 ms, fades it to black when 0.55 s are left, and after `ended` restarts it 100 ms later with a fresh fade-in. There is no `loop` attribute.
   - The pause button is remembered. Reduced-motion visitors get the clip's first frame as a still, with no pause button.
@@ -116,7 +118,13 @@ The page follows the owner's reference image and its "Section 1" brief, reusing 
 - **Readability:** the glowing stream rises behind the pill and the status line near the end of the clip.
   - The pill, file chip, share label and status line get a smoked tint.
   - The result panels get a dark tint.
-  - These were checked by eye at 1.5 s, 9 s and 12.5 s. The CDN sends no CORS header, so the canvas contrast measurement used for the earlier clip can't read these frames.
+  - Contrast was measured at 779x668 over eight frames (0.5 s to 12.4 s), against the brightest 5% of pixels behind each text:
+    - headline at least 17.7:1;
+    - brand at least 19.4:1;
+    - tagline at least 14.1:1;
+    - error line at least 8.6:1;
+    - placeholder (white at 60% on the smoked pill) at least 6.9:1.
+  - The local server sends whole files without byte ranges, so the clip can't be seeked there. Playback and the loop are unaffected, and Vercel serves ranges.
 - **Earlier versions** are in git history: the floating-cliffs clip, with its crossfaded loop and poster (commit `bd78e94`), and the rim-and-lens glass (commit `979da1d`). The dotted flow is still in `web/flow.js`.
 
 ### Page design (24 Nov 2026)

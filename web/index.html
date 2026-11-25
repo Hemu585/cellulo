@@ -119,7 +119,7 @@
     flex: 1; min-width: 0; height: 44px; padding: 0 4px; border: 0; outline: 0; background: none;
     font: inherit; font-size: 1rem; color: var(--ink);
   }
-  .search input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.5); opacity: 1; }
+  .search input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.6); opacity: 1; }
   .search input[type="text"]:focus-visible { outline: 0; }   /* the pill shows the focus ring */
 
   button { font: inherit; }
@@ -255,8 +255,7 @@
 
 <!-- decoration only: muted, no controls; app.js plays it with a fade to black between loops, unless the visitor prefers reduced motion -->
 <div class="backdrop" aria-hidden="true">
-  <video id="bg" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"
-         muted playsinline preload="auto" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+  <video id="bg" src="hero.mp4" muted playsinline preload="auto" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
 </div>
 
 <main class="hero">
