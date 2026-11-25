@@ -110,15 +110,15 @@ The page follows the owner's reference image and the hero part of its brief. Cel
   - **The fix:** the web copy plays from 2 s to the end and crossfades its last 2 seconds into the first 2. The stream dissolves and rises again, and the last frame matches the first.
   - **The file:** 11 s, H.264 High, CRF 25, `faststart`, 2.2 MB. The camera, figure and clouds don't move, so only the stream and the stars blend.
   - **Playback:** it plays with the native `loop` attribute. On first load it fades in once (0.8 s), when its first frame is ready, and never fades to black. In Chrome the longest freeze across two loop points was 25 ms, under one frame.
-  - **Pause and reduced motion:** the pause button is remembered. Reduced-motion visitors get the first frame as a still, with no pause button. Coming back to the tab resumes playback.
+  - **No pause button:** the owner removed it on 25 Nov 2026. Visitors whose device asks for reduced motion get the first frame as a still. This does not fully meet WCAG 2.2.2 (Pause, Stop, Hide) for everyone else. Coming back to the tab resumes playback.
 - **Type:** **DM Sans** for everything, from the owner's chosen specimen ("calm product design").
   - The headline is weight 400, with "One link" in 600 (not italic), line height 1.12 and tracking -0.025em.
   - **Same width as the search pill:** the hero column is 36rem wide (`container-type: inline-size`), and the measured line is 9.09 em long. So `font-size: calc(100cqi / 9.18)` keeps the one-line headline as wide as the search pill at every size: 63 px on desktop, 37 px on a 390 px phone, within 3 px of the pill's edges.
   - An earlier choice of Cormorant Garamond, picked with the ui-ux-pro-max typography search, was replaced at the owner's request.
-- **Search pill:** a `.liquid-glass` pill, max 36rem wide, holding a round attach button, the link field, and a white round send button with a black arrow. The arrow turns into a spinner while busy, and the visible label lives in a screen-reader-only span.
+- **Search pill:** a `.liquid-glass` pill, max 36rem wide, holding a round attach button, the link field, and a round liquid-glass send button with a white arrow. The arrow turns into a spinner while busy, and the visible label lives in a screen-reader-only span.
   - The attached file's chip and the share checkbox sit under the pill.
   - The extra bottom padding (up to 36vh) lifts the pill into the upper half of the screen.
-- **`.liquid-glass`:** almost clear white, a 4 px blur behind, and a 1.4 px rim that is brighter at the top and bottom edges. It is used on the pill, attach and pause buttons, the file chip, the result panels and their buttons.
+- **`.liquid-glass`:** almost clear white, a 4 px blur behind, and a 1.4 px rim that is brighter at the top and bottom edges. It is used on the pill, the attach and send buttons, the file chip, the result panels and their buttons.
 - **Readability:** the glowing stream rises behind the pill and the status line.
   - The pill (38%), file chip and share label (45%) and status line (65%) get a smoked tint. The result panels get a dark tint.
   - Contrast was measured at 779x668 over eight frames, against the brightest 5% of pixels behind each text:

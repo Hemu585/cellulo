@@ -1,24 +1,15 @@
 (() => {
   // ---------- background: the clip loops with no visible seam (its last two seconds dissolve into its first) ----------
   // play() is called here rather than by an autoplay attribute, so reduced-motion visitors get its first frame as a still
-  const form = document.getElementById('form'), clip = document.getElementById('bg'), motion = document.getElementById('motion');
+  const form = document.getElementById('form'), clip = document.getElementById('bg');
   const still = matchMedia('(prefers-reduced-motion: reduce)');
-  let paused = false;
-  try { paused = localStorage.getItem('cellulo-motion') === 'paused'; } catch {}
   const show = () => clip.classList.add('on');   // one fade-in when the first frame is ready
   if (clip.readyState >= 2) show(); else clip.addEventListener('loadeddata', show, { once: true });
+  // no pause button (owner's choice, 25 Nov 2026): visitors whose device asks for reduced motion get the still frame instead
   function sync() {
-    motion.hidden = still.matches;   // reduced motion: a still frame only, so there is nothing to pause
-    motion.setAttribute('aria-pressed', String(paused));
-    motion.setAttribute('aria-label', paused ? 'Play the background' : 'Pause the background');
-    if (paused || still.matches) clip.pause();
+    if (still.matches) clip.pause();
     else clip.play().catch(() => {});   // autoplay blocked or the file failed: the black page stays
   }
-  motion.addEventListener('click', () => {
-    paused = !paused;
-    try { localStorage.setItem('cellulo-motion', paused ? 'paused' : 'moving'); } catch {}
-    sync();
-  });
   still.addEventListener('change', sync);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });   // phones pause media in background tabs
   sync();
