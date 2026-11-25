@@ -16,7 +16,7 @@ PORT = 8765
 PAGE = Path(__file__).with_name("web") / "index.html"
 # the same security headers the hosted site sends, kept in one place
 HEADERS = [(h["key"], h["value"]) for h in json.loads(PAGE.with_name("vercel.json").read_text())["headers"][0]["headers"]]
-FILES = {"app.js": "text/javascript; charset=utf-8", "favicon.svg": "image/svg+xml", "icon-32.png": "image/png", "icon-192.png": "image/png", "apple-touch-icon.png": "image/png"}
+FILES = {"app.js": "text/javascript; charset=utf-8", "hero.mp4": "video/mp4", "hero-poster.webp": "image/webp", "favicon.svg": "image/svg+xml", "icon-32.png": "image/png", "icon-192.png": "image/png", "apple-touch-icon.png": "image/png"}
 
 
 def sheet_id_from(text):

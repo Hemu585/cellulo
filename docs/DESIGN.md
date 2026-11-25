@@ -100,6 +100,28 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 - `Content-Security-Policy`: script only from this site and Google's sign-in library (no inline script, which is why the script lives in `app.js`); connections only to this site, `sheets.googleapis.com`, `www.googleapis.com` and Google sign-in; fonts from Google Fonts; images and media from this site or `blob:`; `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'none'`.
 - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` (the API key's referrer lock still gets the site's origin), and a `Permissions-Policy` that turns off camera, microphone and location.
 
+### Background clip (25 Nov 2026)
+
+A landscape of floating cliffs over clouds plays behind the page, full screen and fixed while the page scrolls. The text, logo and box are ordinary HTML on top. Palette: warm ivory text (`#f4eee2`), ice-blue accents (`#c3dbee`), and translucent deep-navy panels with a light blur behind them only. The clip itself is never blurred. The logo is drawn in ivory and ice blue so it shows on the dark background; the favicon keeps its own colours.
+
+- **Source:** the owner's 1280x720 clip (H.264, 24 fps, 10 s, with an audio track, 3.7 MB). The 2560x1440 "upscaled" copy was not used.
+- **`web/hero.mp4`:** H.264 High, 1280x720, no audio, 9 s, 1.3 MB, with `faststart`.
+  - The last and first frames of the source don't match: the camera drifts, so a plain loop visibly jumps.
+  - The web copy plays from 1 s to the end and crossfades its last second into the first second. It now ends on the frame it starts with.
+- **`web/hero-poster.webp`:** the clip's first frame (73 KB).
+  - It is preloaded and also set as the backdrop's CSS background, so it shows at once.
+  - It stays when autoplay is blocked or the clip fails to load.
+- **Playback:**
+  - Muted, looping, `playsinline`, no controls, hidden from screen readers.
+  - `object-fit: cover`, with `object-position: 55% 50%` so the open sky between the cliffs sits behind the content. On tall phone screens only the sky shows.
+  - `app.js` starts it with `play()` rather than the `autoplay` attribute, so visitors who prefer reduced motion get the still poster, and the clip is never downloaded for them.
+  - The bottom-left button pauses and resumes it, and remembers the choice. A paused visitor doesn't download the clip either.
+  - Coming back to the tab resumes playback.
+- **Contrast:** a navy veil over the whole clip, deeper behind the headline and box, and deeper still on portrait screens. The tagline sits on a small navy chip.
+  - The worst case was measured over seven frames, at 779x668, 1440x900, 390x844 and 844x390, against the brightest 5% of pixels behind each text.
+  - Results: headline at least 3.9:1, italic "One link" at least 3.7:1, tagline at least 6.4:1, brand at least 4.8:1 (5.4:1 on a landscape phone), placeholder at least 5.1:1, error line at least 4.6:1.
+- **The old dotted flow** is kept in `web/flow.js`, which the page doesn't load; its header says how to bring it back.
+
 ### Page design (24 Nov 2026)
 
 Follows the owner's reference image: "Cellulo" with the C logo centred at the top (a home link; the logo is drawn inline in the original navy and blue, about 1.2x the text size), an orange-dot tagline "A simpler way to share files", the headline "Your file is one link away.", one composer box, and under it a status line that stays empty until there is progress or an error (it keeps its height so the box never jumps), all centred in the screen. Nothing on the right-hand side. The product stores any file, so the page never names a file type.
