@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Schibsted+Grotesk:wght@400;500&family=Fragment+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Schibsted+Grotesk:wght@400;500&family=Fragment+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #000;
@@ -20,7 +20,7 @@
     --muted: rgba(255, 255, 255, 0.62);
     --panel: rgba(8, 8, 12, 0.55);    /* result panels: liquid glass with a dark tint, so long text stays readable */
     --warn: #ffb8a3;
-    --display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;   /* airy, calligraphic: suits the night sky; pairs with the grotesk */
     --sans: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
     --mono: "Fragment Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
     color-scheme: dark;   /* the page is dark only: native controls and scrollbars match it */
@@ -71,7 +71,7 @@
   /* the top bar floats over the page, so the content can sit in the true middle of the screen */
   .top {
     position: absolute; z-index: 2; top: env(safe-area-inset-top); left: env(safe-area-inset-left); right: env(safe-area-inset-right);
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: flex-start;
     padding: clamp(18px, 3.4vh, 36px) clamp(20px, 2.5vw, 44px);
   }
   /* logo + name: the extra padding makes the tap target 44px without moving anything */
@@ -84,33 +84,29 @@
 
   /* the clip fills the screen behind everything, anchored at the bottom so the figure stays in view; lvh so no gap shows when a phone's toolbar slides away */
   .backdrop { position: fixed; top: 0; left: 0; z-index: 0; width: 100%; height: 100vh; height: 100lvh; overflow: hidden; pointer-events: none; background: var(--bg); }
-  .backdrop video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; opacity: 0; }   /* app.js fades it in and out */
+  .backdrop video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; opacity: 0; transition: opacity 0.8s; }
+  .backdrop video.on { opacity: 1; }   /* app.js adds this once the first frame is ready */
 
   /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it.
      More room below than above lifts the content into the dark sky, clear of the figure. */
-  .hero { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(80px, 12vh, 120px) 24px clamp(96px, 26vh, 300px); }
+  .hero { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(80px, 12vh, 120px) 24px clamp(120px, 36vh, 400px); }
   .stack { position: relative; z-index: 1; width: 100%; max-width: 640px; display: flex; flex-direction: column; align-items: center; text-align: center; text-shadow: 0 1px 18px rgba(0, 0, 0, 0.5); }
   .stack > * { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
-  .pill {
-    display: inline-flex; align-items: center; gap: 0.8em; margin: 0; padding: 0.55em 1.15em; border-radius: 999px;
-    font-family: var(--mono); font-size: min(clamp(0.78rem, 0.9vw, 0.92rem), 4vw); letter-spacing: 0.02em; color: var(--soft); white-space: nowrap; text-shadow: none;
-  }
-  .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
 
   h1 {
-    margin: clamp(14px, 3vh, 28px) 0 0;
-    font-family: var(--display); font-weight: 400;
-    /* 13vw: phones; 11vh: short screens such as landscape phones */
-    font-size: clamp(3rem, min(13vw, 11vh), 7.5rem); line-height: 0.95; letter-spacing: -0.025em;
+    margin: 0; white-space: nowrap;
+    font-family: var(--display); font-weight: 300;
+    /* one line at every width: the line is about 8.9 em long, so 9.4vw fills ~84% of the screen; 12vh keeps short screens in proportion */
+    font-size: min(9.4vw, 12vh, 6.25rem); line-height: 1.05; letter-spacing: -0.01em;
   }
-  h1 em { font-style: italic; }
+  h1 em { font-style: italic; font-weight: 400; }
 
   /* one pill for both jobs: paste a link to restore, or attach a file to upload */
   .search {
     display: flex; align-items: center; gap: 10px; width: 100%; max-width: 36rem;
-    margin-top: clamp(24px, 4.4vh, 44px); padding: 8px; border-radius: 999px; text-shadow: none;
+    margin-top: clamp(20px, 3.6vh, 36px); padding: 8px; border-radius: 999px; text-shadow: none;
     background-color: rgba(0, 0, 0, 0.38);   /* smoked glass: the glowing stream rises behind the pill near the end of the clip */
   }
   .search:focus-within { box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 0 0 3px rgba(255, 255, 255, 0.22); }
@@ -185,7 +181,7 @@
   }
   .caption.error { font-size: 1rem; color: var(--warn); }
   /* the line sits over the glowing stream, so it gets smoked glass whenever it says something */
-  .caption:not(:empty) { padding: 0.4em 1em; border-radius: 999px; background: rgba(0, 0, 0, 0.5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); text-shadow: none; }
+  .caption:not(:empty) { padding: 0.4em 1em; border-radius: 999px; background: rgba(0, 0, 0, 0.65); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); text-shadow: none; }
 
   .result { width: 100%; margin-top: 28px; border-radius: 24px; text-align: left; text-shadow: none; background-color: var(--panel); }
   .result video, .result img { display: block; width: 100%; max-height: 62vh; background: #050507; object-fit: contain; }
@@ -215,14 +211,11 @@
   @media (max-height: 700px) {
     .top { padding-top: 14px; padding-bottom: 14px; }
     .hero { padding-top: 64px; padding-bottom: 72px; }
-    h1 { margin-top: 12px; }
-    .search { margin-top: 18px; }
+    .search { margin-top: 16px; }
   }
   @media (max-height: 480px) {
     .top { padding-top: 6px; padding-bottom: 6px; }
     .hero { padding-top: 44px; padding-bottom: 20px; }
-    .pill { display: none; }
-    h1 { margin-top: 0; }
     .caption { margin-top: 10px; }
   }
   /* big monitors: scale the whole page up instead of leaving a small island in the middle */
@@ -253,9 +246,9 @@
   </a>
 </header>
 
-<!-- decoration only: muted, no controls; app.js plays it with a fade to black between loops, unless the visitor prefers reduced motion -->
+<!-- decoration only: muted, looping, no controls; app.js starts it unless the visitor prefers reduced motion -->
 <div class="backdrop" aria-hidden="true">
-  <video id="bg" src="hero.mp4" muted playsinline preload="auto" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+  <video id="bg" src="hero.mp4" muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
 </div>
 
 <main class="hero">
@@ -264,8 +257,7 @@
     <svg viewBox="0 0 16 16" aria-hidden="true"><path class="pause" d="M5 3.5v9M11 3.5v9"/><path class="play" d="M5.5 3.5v9l7-4.5z"/></svg>
   </button>
   <div class="stack">
-    <p class="pill liquid-glass" style="--i:0"><i></i>A simpler way to share files</p>
-    <h1 style="--i:1">Your file.<br><em>One link</em> away.</h1>
+    <h1 style="--i:0">Your file. <em>One link</em> away.</h1>
     <form class="search liquid-glass" id="form" style="--i:2">
       <!-- a label for the file input opens the system file picker natively; a scripted click on a hidden input does not in every browser -->
       <input id="file" type="file" class="sr-only">

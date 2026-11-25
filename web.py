@@ -59,9 +59,23 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/":
             self.reply(200, PAGE.read_bytes(), "text/html; charset=utf-8")
         elif name in FILES:   # fixed list, so no path from the request ever reaches the file system
-            self.reply(200, PAGE.with_name(name).read_bytes(), FILES[name])
+            self.send_file(PAGE.with_name(name).read_bytes(), FILES[name])
         else:
             self.fail(404, "Not found")
+
+    def send_file(self, body, content_type):
+        # byte ranges let browsers seek and loop media without refetching it (Safari will not play media without them)
+        match = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", "").strip())
+        if not match or not any(match.groups()):
+            return self.reply(200, body, content_type, [("Accept-Ranges", "bytes")])
+        first, last = match.groups()
+        if first:
+            start, end = int(first), min(int(last) if last else len(body) - 1, len(body) - 1)
+        else:   # "bytes=-N": the last N bytes
+            start, end = max(0, len(body) - int(last)), len(body) - 1
+        if start > end:
+            return self.reply(416, b"", content_type, [("Content-Range", f"bytes */{len(body)}")])
+        self.reply(206, body[start:end + 1], content_type, [("Accept-Ranges", "bytes"), ("Content-Range", f"bytes {start}-{end}/{len(body)}")])
 
     def do_POST(self):
         if not self.local():

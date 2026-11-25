@@ -102,38 +102,40 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 
 ### Hero, after the owner's reference (25 Nov 2026)
 
-The page follows the owner's reference image and its "Section 1" brief, reusing only the hero: there are no extra page sections, nav links, sign-up or social buttons. The brand stays centred at the top, as the owner chose earlier, and the wording keeps "file".
+The page follows the owner's reference image and the hero part of its brief. Cellulo with its logo sits at the top left. The single-line headline "Your file. *One link* away." sits over the search pill, and the wording keeps "file".
 
-- **Background:** `web/hero.mp4`, the owner's chosen clip, hosted with the site.
-  - The source was downloaded once from its CloudFront address: 1756x1176, 24 fps, 13 s, no audio, H.264 Main, 13.5 MB.
-  - It was re-encoded at the same size as H.264 High, CRF 25, with `faststart`: 2.7 MB, and frames compare at 0.98 SSIM.
-  - It fills the screen, anchored at the bottom so the figure stays in view, over a black page.
-  - `app.js` fades it in over 500 ms, fades it to black when 0.55 s are left, and after `ended` restarts it 100 ms later with a fresh fade-in. There is no `loop` attribute.
-  - The pause button is remembered. Reduced-motion visitors get the clip's first frame as a still, with no pause button.
-  - Coming back to the tab resumes playback.
-- **Type:** Instrument Serif headline "Your file. / *One link* away." in white, with tight tracking.
+- **Background:** `web/hero.mp4`, the owner's chosen clip, hosted with the site and looping with no visible seam.
+  - **Source:** downloaded once from its CloudFront address: 1756x1176, 24 fps, 13 s, no audio, 13.5 MB.
+  - **The jump:** the source ends with a large golden stream above the figure but starts with a small glow, so a plain loop jumps (SSIM 0.82 across the cut, against 0.995 between normal frames).
+  - **The fix:** the web copy plays from 2 s to the end and crossfades its last 2 seconds into the first 2. The stream dissolves and rises again, and the last frame matches the first.
+  - **The file:** 11 s, H.264 High, CRF 25, `faststart`, 2.2 MB. The camera, figure and clouds don't move, so only the stream and the stars blend.
+  - **Playback:** it plays with the native `loop` attribute. On first load it fades in once (0.8 s), when its first frame is ready, and never fades to black. In Chrome the longest freeze across two loop points was 25 ms, under one frame.
+  - **Pause and reduced motion:** the pause button is remembered. Reduced-motion visitors get the first frame as a still, with no pause button. Coming back to the tab resumes playback.
+- **Headline font:** **Cormorant Garamond**, light 300 with italic 400 for "One link".
+  - Picked with the ui-ux-pro-max typography search (elegant and luxury pairings: Cormorant, Playfair Display, Bodoni Moda, Cinzel).
+  - Its airy, calligraphic strokes suit the night sky, it contrasts well with the Schibsted Grotesk interface, and it is narrow enough for one line.
+  - **One line:** the line is about 8.9 em long, so `font-size: min(9.4vw, 12vh, 6.25rem)` keeps it at about 84% of the screen width on phones, with `white-space: nowrap`.
 - **Search pill:** a `.liquid-glass` pill, max 36rem wide, holding a round attach button, the link field, and a white round send button with a black arrow. The arrow turns into a spinner while busy, and the visible label lives in a screen-reader-only span.
   - The attached file's chip and the share checkbox sit under the pill.
-- **`.liquid-glass`:** almost clear white, a 4 px blur behind, and a 1.4 px rim that is brighter at the top and bottom edges. It is used on the tagline, pill, attach and pause buttons, the file chip, the result panels and their buttons.
-- **Readability:** the glowing stream rises behind the pill and the status line near the end of the clip.
-  - The pill, file chip, share label and status line get a smoked tint.
-  - The result panels get a dark tint.
-  - Contrast was measured at 779x668 over eight frames (0.5 s to 12.4 s), against the brightest 5% of pixels behind each text:
-    - headline at least 17.7:1;
-    - brand at least 19.4:1;
-    - tagline at least 14.1:1;
-    - error line at least 8.6:1;
-    - placeholder (white at 60% on the smoked pill) at least 6.9:1.
-  - The local server sends whole files without byte ranges, so the clip can't be seeked there. Playback and the loop are unaffected, and Vercel serves ranges.
-- **Earlier versions** are in git history: the floating-cliffs clip, with its crossfaded loop and poster (commit `bd78e94`), and the rim-and-lens glass (commit `979da1d`). The dotted flow is still in `web/flow.js`.
+  - The extra bottom padding (up to 36vh) lifts the pill into the upper half of the screen.
+- **`.liquid-glass`:** almost clear white, a 4 px blur behind, and a 1.4 px rim that is brighter at the top and bottom edges. It is used on the pill, attach and pause buttons, the file chip, the result panels and their buttons.
+- **Readability:** the glowing stream rises behind the pill and the status line.
+  - The pill (38%), file chip and share label (45%) and status line (65%) get a smoked tint. The result panels get a dark tint.
+  - Contrast was measured at 779x668 over eight frames, against the brightest 5% of pixels behind each text:
+    - headline at least 18.0:1;
+    - brand at least 19.2:1;
+    - placeholder (white at 60%) at least 7.1:1;
+    - error line at least 6.2:1.
+- **Local server:** `web.py` now serves byte ranges (`206 Partial Content`), so browsers can seek and loop the clip locally. Safari will not play media without them.
+- **Earlier versions** are in git history: the floating-cliffs clip (commit `bd78e94`) and the rim-and-lens glass (commit `979da1d`). The dotted flow is still in `web/flow.js`.
 
 ### Page design (24 Nov 2026)
 
-Follows the owner's reference image: "Cellulo" with the C logo centred at the top (a home link; the logo is drawn inline in the original navy and blue, about 1.2x the text size), an orange-dot tagline "A simpler way to share files", the headline "Your file is one link away.", one composer box, and under it a status line that stays empty until there is progress or an error (it keeps its height so the box never jumps), all centred in the screen. Nothing on the right-hand side. The product stores any file, so the page never names a file type.
+(Superseded on 25 Nov 2026 by the hero section above; kept as a record.) Follows the owner's reference image: "Cellulo" with the C logo centred at the top (a home link; the logo is drawn inline in the original navy and blue, about 1.2x the text size), an orange-dot tagline "A simpler way to share files", the headline "Your file is one link away.", one composer box, and under it a status line that stays empty until there is progress or an error (it keeps its height so the box never jumps), all centred in the screen. Nothing on the right-hand side. The product stores any file, so the page never names a file type.
 
 - One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a file", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
 - The flow lines meet in a point just outside each side of the box. The earlier dot shapes and their morph were removed at the owner's request.
-- Fonts: **Instrument Serif** for the headline (italic for "One link"), **Schibsted Grotesk** for the interface, **Fragment Mono** for the small tagline. The headline is 3 rem on phones, up to 7.5 rem, and also follows the screen height (11vh) so short screens keep the search pill in view.
+- Fonts: **Cormorant Garamond** for the headline (light, italic for "One link"), **Schibsted Grotesk** for the interface. The headline stays on one line: `min(9.4vw, 12vh, 6.25rem)`.
 - Web Interface Guidelines applied: "…" on loading states, non-breaking spaces in sizes, tabular numbers in the progress line, `color-scheme: light`, `touch-action: manipulation` on controls, no transitions on colour or shadow, `translate="no"` on the brand.
 - A small pause button at the bottom left stops the flow animation (moving content that runs longer than 5 seconds needs one). The choice is remembered in the browser; reduced-motion visitors get a still frame and no button.
 
