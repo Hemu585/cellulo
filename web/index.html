@@ -9,6 +9,7 @@
 <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="hero-poster.webp" as="image" type="image/webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -28,6 +29,7 @@
   @media (pointer: fine) { html { overscroll-behavior: none; } }
   body {
     margin: 0;
+    min-height: 100vh;
     min-height: 100svh;
     display: grid;
     position: relative;
@@ -81,7 +83,8 @@
   .brand span { line-height: 1; padding-top: 0.06em; }   /* sits the text on the mark's optical centre */
 
   /* the clip fills the screen behind everything, anchored at the bottom so the figure stays in view; lvh so no gap shows when a phone's toolbar slides away */
-  .backdrop { position: fixed; top: 0; left: 0; z-index: 0; width: 100%; height: 100vh; height: 100lvh; overflow: hidden; pointer-events: none; background: var(--bg); }
+  .backdrop { position: fixed; top: 0; left: 0; z-index: 0; width: 100%; height: 100vh; height: 100lvh; overflow: hidden; pointer-events: none;
+    background: var(--bg) url(hero-poster.webp) 50% 100% / cover no-repeat; }   /* the clip's first frame: shows at once, and stays if autoplay is blocked (iOS Low Power Mode, Data Saver) */
   .backdrop video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; opacity: 0; transition: opacity 0.8s; }
   .backdrop video.on { opacity: 1; }   /* app.js adds this once the first frame is ready */
 
@@ -97,6 +100,7 @@
     margin: 0; white-space: nowrap;
     font-family: var(--sans); font-weight: 400;
     /* one line exactly as wide as the search pill: the line is 9.09 em long (measured), so 100cqi / 9.18 fills the column, with a hair of room for rounding on phones */
+    font-size: min(7.2vw, 4.5rem);   /* older browsers without container units */
     font-size: calc(100cqi / 9.18); line-height: 1.12; letter-spacing: -0.025em;
   }
   h1 em { font-style: normal; font-weight: 600; }
@@ -226,6 +230,11 @@
     * { transition: none !important; }
     .go[disabled]::after { animation-duration: 2.4s; }   /* still shows it is working, without spinning fast */
     .backdrop video { opacity: 1; }   /* the clip is not played: its first frame stands in as a still */
+  }
+  @media (forced-colors: active) {
+    .liquid-glass, .search, .caption:not(:empty), .share { border: 1px solid CanvasText; }
+    .liquid-glass::before { display: none; }
+    .go[disabled]::after { border-color: CanvasText; border-top-color: Highlight; }
   }
 </style>
 </head>

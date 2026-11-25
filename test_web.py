@@ -46,6 +46,7 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(self.call("GET", "/app.js").status, 200)
         self.assertEqual(self.call("GET", "/icon-32.png").status, 200)
         self.assertEqual(self.call("GET", "/hero.mp4").getheader("Content-Type"), "video/mp4")
+        self.assertEqual(self.call("GET", "/hero-poster.webp").getheader("Content-Type"), "image/webp")
         for path in ("/web.py", "/../web.py", "/vercel.json", "/%2e%2e/cellulo.py"):
             self.assertEqual(self.call("GET", path).status, 404, path)
 
