@@ -45,8 +45,19 @@ class ServerTest(unittest.TestCase):
     def test_serves_only_listed_files(self):
         self.assertEqual(self.call("GET", "/app.js").status, 200)
         self.assertEqual(self.call("GET", "/icon-32.png").status, 200)
+        self.assertEqual(self.call("GET", "/hero.mp4").getheader("Content-Type"), "video/mp4")
         for path in ("/web.py", "/../web.py", "/vercel.json", "/%2e%2e/cellulo.py"):
             self.assertEqual(self.call("GET", path).status, 404, path)
+
+    def test_serves_byte_ranges(self):
+        whole = (web.PAGE.with_name("hero.mp4")).read_bytes()
+        part = self.call("GET", "/hero.mp4", Range="bytes=10-19")
+        self.assertEqual((part.status, part.data), (206, whole[10:20]))
+        self.assertEqual(part.getheader("Content-Range"), f"bytes 10-19/{len(whole)}")
+        self.assertEqual(self.call("GET", "/hero.mp4", Range="bytes=-5").data, whole[-5:])
+        self.assertEqual(self.call("GET", "/hero.mp4", Range=f"bytes={len(whole) - 3}-").data, whole[-3:])
+        self.assertEqual(self.call("GET", "/hero.mp4", Range=f"bytes={len(whole)}-").status, 416)
+        self.assertEqual(self.call("GET", "/hero.mp4", Range="lines=1-2").status, 200)   # anything else: the whole file
 
     def test_refuses_foreign_host(self):
         # DNS rebinding: a hostile name pointed at 127.0.0.1

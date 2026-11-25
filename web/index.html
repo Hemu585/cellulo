@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#faf8f3">
+<meta name="theme-color" content="#000000">
 <title>Cellulo</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
 <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
@@ -11,22 +11,17 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Schibsted+Grotesk:wght@400;500&family=Fragment+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #faf8f3;
-    --paper: #fdfcf9;
-    --ink: #16202e;
-    --blue: #1f5a8a;
-    --navy: #0f2a44;
-    --slate: #34485e;
-    --accent: #c4682e;
-    --muted: #5b6673;
-    --warn: #9a3a26;
-    --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-    --sans: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
-    --mono: "Fragment Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-    color-scheme: light;   /* the page is light only: keep native controls and scrollbars light in dark-mode browsers */
+    --bg: #000;
+    --ink: #fff;
+    --soft: rgba(255, 255, 255, 0.8);
+    --muted: rgba(255, 255, 255, 0.62);
+    --panel: rgba(8, 8, 12, 0.55);    /* result panels: liquid glass with a dark tint, so long text stays readable */
+    --warn: #ffb8a3;
+    --sans: "DM Sans", "Segoe UI", system-ui, sans-serif;   /* one family for everything: calm, with a 400/600 weight contrast */
+    color-scheme: dark;   /* the page is dark only: native controls and scrollbars match it */
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -46,13 +41,38 @@
   }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
+  /* liquid glass: almost clear, a soft blur behind, and a hairline rim that is bright at the top and bottom edges */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 20%, rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0.15) 80%, rgba(255, 255, 255, 0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
   /* the top bar floats over the page, so the content can sit in the true middle of the screen */
   .top {
     position: absolute; z-index: 2; top: env(safe-area-inset-top); left: env(safe-area-inset-left); right: env(safe-area-inset-right);
-    display: flex; align-items: center; justify-content: center; gap: 16px;
+    display: flex; align-items: center; justify-content: flex-start;
     padding: clamp(18px, 3.4vh, 36px) clamp(20px, 2.5vw, 44px);
   }
-  /* logo + name: the mark is a touch taller than the capitals, and the extra padding makes the tap target 44px without moving anything */
+  /* logo + name: the extra padding makes the tap target 44px without moving anything */
   .brand {
     display: inline-flex; align-items: center; gap: 0.42em; margin: -10px -12px; padding: 10px 12px; border-radius: 12px;
     font-size: clamp(1.08rem, 1.25vw, 1.3rem); font-weight: 500; letter-spacing: -0.015em; color: var(--ink); text-decoration: none;
@@ -60,165 +80,152 @@
   .brand .mark { width: 1.18em; height: 1.18em; flex: none; }
   .brand span { line-height: 1; padding-top: 0.06em; }   /* sits the text on the mark's optical centre */
 
-  /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it */
-  .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(64px, 10vh, 100px) 20px; }   /* equal above and below, and clear of the top bar */
-  #flow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  /* narrower than the window on mid-size screens, so the dot flow has room on both sides */
-  .stack { position: relative; z-index: 1; width: 100%; max-width: min(860px, max(50vw, 520px)); display: flex; flex-direction: column; align-items: center; text-align: center; }
+  /* the clip fills the screen behind everything, anchored at the bottom so the figure stays in view; lvh so no gap shows when a phone's toolbar slides away */
+  .backdrop { position: fixed; top: 0; left: 0; z-index: 0; width: 100%; height: 100vh; height: 100lvh; overflow: hidden; pointer-events: none; background: var(--bg); }
+  .backdrop video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; opacity: 0; transition: opacity 0.8s; }
+  .backdrop video.on { opacity: 1; }   /* app.js adds this once the first frame is ready */
+
+  /* minmax(0, 1fr): the column follows the screen width, not the longest unbreakable text inside it.
+     More room below than above lifts the content into the dark sky, clear of the figure. */
+  .hero { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: clamp(80px, 12vh, 120px) 24px clamp(120px, 36vh, 400px); }
+  .stack { position: relative; z-index: 1; width: 100%; max-width: 36rem; container-type: inline-size; display: flex; flex-direction: column; align-items: center; text-align: center; text-shadow: 0 1px 18px rgba(0, 0, 0, 0.5); }
   .stack > * { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
-  .pill { display: inline-flex; align-items: center; gap: 0.8em; margin: 0; font-family: var(--mono); font-size: min(clamp(0.8rem, 0.95vw, 0.96rem), 4.2vw); letter-spacing: 0.02em; color: var(--slate); white-space: nowrap; }
-  .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 
   h1 {
-    margin: clamp(16px, 3.2vh, 32px) 0 0;
-    font-family: var(--serif); font-weight: 400; font-optical-sizing: auto;
-    /* 10.5vw: narrowest phones; 4vw or 2.5rem: everything wider; 8.5vh: short screens such as landscape phones */
-    font-size: clamp(2.25rem, min(10.5vw, max(4vw, 2.5rem), 8.5vh), 4.5rem); line-height: 1.04; letter-spacing: -0.018em;
-    text-wrap: balance;
+    margin: 0; white-space: nowrap;
+    font-family: var(--sans); font-weight: 400;
+    /* one line exactly as wide as the search pill: the line is 9.09 em long (measured), so 100cqi / 9.18 fills the column, with a hair of room for rounding on phones */
+    font-size: calc(100cqi / 9.18); line-height: 1.12; letter-spacing: -0.025em;
   }
-  h1 em { color: var(--blue); }
+  h1 em { font-style: normal; font-weight: 600; }
 
-  /* one box for both jobs: paste a link to restore, or attach a file to upload */
-  .composer {
-    display: flex; flex-direction: column; gap: 12px; width: 100%; text-align: left;
-    margin-top: clamp(22px, 4.2vh, 42px); padding: 18px 16px 16px 22px; min-height: clamp(132px, 18vh, 168px);
-    background: var(--paper); border: 1.5px solid #2d4c6c; border-radius: 18px;
-    box-shadow: 0 28px 44px -32px rgba(15, 42, 68, 0.5);
+  /* one pill for both jobs: paste a link to restore, or attach a file to upload */
+  .search {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    margin-top: clamp(20px, 3.6vh, 36px); padding: 8px; border-radius: 999px; text-shadow: none;
+    background-color: rgba(0, 0, 0, 0.38);   /* smoked glass: the glowing stream rises behind the pill near the end of the clip */
   }
-  .composer:focus-within { box-shadow: 0 28px 44px -32px rgba(15, 42, 68, 0.5), 0 0 0 4px rgba(31, 90, 138, 0.12); }
-  .composer[data-drop] { border-style: dashed; border-color: var(--blue); }
-  .composer textarea {
-    flex: 1; width: 100%; min-height: 3em; padding: 0; resize: none; border: 0; outline: 0; background: none;
-    font: inherit; font-size: clamp(1rem, 1.2vw, 1.22rem); line-height: 1.45; color: var(--ink);
+  .search:focus-within { box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 0 0 3px rgba(255, 255, 255, 0.22); }
+  .search[data-drop] { box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 0 0 2px rgba(255, 255, 255, 0.6); }
+  .search input[type="text"] {
+    flex: 1; min-width: 0; height: 44px; padding: 0 4px; border: 0; outline: 0; background: none;
+    font: inherit; font-size: 1rem; color: var(--ink);
   }
-  .composer textarea::placeholder { color: #67727e; opacity: 1; }
-  .bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .spacer { flex: 1; }
-  .bar .go { margin-left: auto; }   /* stays on the right even when the row wraps on phones */
-  .attach {
-    display: inline-flex; align-items: center; gap: 8px; margin-left: -10px; padding: 8px 12px; border-radius: 999px; cursor: pointer;
-    font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.04em; color: var(--slate);
-  }
-  .attach svg { width: 18px; height: 18px; flex: none; }
-  #file:focus-visible + .attach { outline: 2px solid var(--blue); outline-offset: 2px; }
-  .chip {
-    display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; padding: 4px 4px 4px 12px;
-    border-radius: 999px; background: #eaf0f5; color: var(--ink); font-size: 0.9rem;
-  }
-  .chip > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chip-x { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--slate); font-size: 1.1rem; line-height: 1; cursor: pointer; }
-  .share { display: inline-flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--slate); cursor: pointer; }
-  .share input { width: 16px; height: 16px; margin: 0; accent-color: var(--navy); }
+  .search input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.6); opacity: 1; }
+  .search input[type="text"]:focus-visible { outline: 0; }   /* the pill shows the focus ring */
 
   button { font: inherit; }
-  .go, .button {
+  .attach {
+    display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--soft);
+  }
+  .attach svg { width: 19px; height: 19px; }
+  #file:focus-visible + .attach { outline: 2px solid var(--ink); outline-offset: 2px; }
+  /* the send button: liquid glass like the attach button, a touch brighter as the main action; arrow, or a spinner while busy */
+  .go {
+    display: grid; place-items: center; flex: none; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.12); color: var(--ink); cursor: pointer;
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);   /* the glass sheen, in both states */
+    transition: transform 0.25s, background-color 0.35s, box-shadow 0.35s, color 0.35s;
+  }
+  /* ready to send (a link typed or a file attached): warm amber glass, the colour of the sparkles, still see-through */
+  .search.ready .go { background-color: rgba(240, 158, 72, 0.36); color: #fff8ee; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), 0 0 20px rgba(255, 160, 70, 0.45); }
+  .go svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .go[disabled] { cursor: progress; background-color: rgba(255, 255, 255, 0.06); }
+  .search.ready .go[disabled] { background-color: rgba(240, 158, 72, 0.22); }   /* still amber while it works, a little dimmer */
+  .go[disabled] svg { display: none; }
+  .go[disabled]::after { content: ""; width: 18px; height: 18px; border: 2px solid rgba(255, 255, 255, 0.25); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(1turn); } }
+
+  .attached { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; width: 100%; text-shadow: none; }
+  .attached > * { margin-top: 14px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; padding: 4px 4px 4px 14px;
+    border-radius: 999px; color: var(--ink); font-size: 0.9rem; background-color: rgba(0, 0, 0, 0.45);   /* smoked: it sits over the glowing stream */
+  }
+  .chip > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-x { display: inline-grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--soft); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+  .share { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; font-size: 0.88rem; color: var(--ink); cursor: pointer;
+          background: rgba(0, 0, 0, 0.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .share input { width: 16px; height: 16px; margin: 0; accent-color: #fff; }
+
+  /* the reference's secondary buttons (Login, Manifesto): glass pills with white text */
+  .button, .ghost {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px; flex: none;
-    padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer; text-decoration: none;
-    background: var(--navy); color: #fff; font-family: var(--mono); font-size: 0.95rem; font-weight: 400; letter-spacing: 0.02em;
-    transition: transform 0.15s, background 0.2s;
+    padding: 12px 28px; border: 0; border-radius: 999px; cursor: pointer; text-decoration: none;
+    color: var(--ink); font-family: var(--sans); font-size: 0.9rem; font-weight: 500; transition: background 0.2s;
   }
-  .ghost {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 11px 20px; border-radius: 999px; cursor: pointer;
-    background: none; color: var(--ink); border: 1px solid #b7bdc4; font-family: var(--mono); font-size: 0.95rem;
-  }
-  .go:active, .button:active, .ghost:active { transform: translateY(1px); }
+
+  .go:active { transform: scale(0.95); }
   /* hover looks only where there is a real pointer; on touch screens they stick after a tap */
   @media (hover: hover) {
-    .go:hover, .button:hover { background: #1b3d60; }
-    .go:hover .arrow, .button:hover .arrow, .ghost:hover .arrow { transform: translateX(3px); }
-    .attach:hover { background: rgba(31, 90, 138, 0.07); color: var(--ink); }
-    .chip-x:hover { background: rgba(15, 42, 68, 0.08); color: var(--ink); }
-    .ghost:hover { background: rgba(31, 90, 138, 0.07); }
-    .brand:hover { background: rgba(31, 90, 138, 0.06); }
-    .motion:hover { opacity: 1; background: rgba(31, 90, 138, 0.07); }
+    .go:not([disabled]):hover { transform: scale(1.05); background-color: rgba(255, 255, 255, 0.2); }
+    .search.ready .go:not([disabled]):hover { background-color: rgba(248, 170, 90, 0.48); }
+    .button:hover, .ghost:hover, .attach:hover, .chip-x:hover { background-color: rgba(255, 255, 255, 0.06); color: var(--ink); }
+    .brand:hover { background: rgba(255, 255, 255, 0.06); }
+    .button:hover .arrow, .ghost:hover .arrow { transform: translateX(3px); }
   }
   .arrow { transition: transform 0.2s; }
-  .motion {
-    position: fixed; z-index: 3; left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom));
-    display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
-    background: none; color: var(--slate); opacity: 0.5; cursor: pointer;
-  }
-  .motion svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .motion .play { display: none; }
-  .motion[aria-pressed="true"] .pause { display: none; }
-  .motion[aria-pressed="true"] .play { display: inline; }
-  .motion:focus-visible { opacity: 1; }
-  .go, .button, .ghost, .attach, .chip-x, .share, .motion, .brand { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  .go[disabled] { cursor: progress; background: #3a4f66; }
-  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
-  .composer textarea:focus-visible { outline: 0; }
+  .go, .button, .ghost, .attach, .chip-x, .share, .brand { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
   .caption {
-    margin: clamp(24px, 4.6vh, 44px) 0 0; min-height: 1.4em;
-    font-family: var(--mono); font-size: clamp(0.76rem, 0.95vw, 0.95rem); font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: var(--slate);
+    margin: clamp(18px, 3.4vh, 32px) 0 0; min-height: 1.4em; max-width: 34rem;
+    font-size: 0.9rem; line-height: 1.6; color: var(--soft);
     font-variant-numeric: tabular-nums;   /* the upload timer and percentage don't jitter */
   }
-  .caption.error { font-family: var(--sans); font-size: 1.05rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--warn); }
+  .caption.error { font-size: 1rem; color: var(--warn); }
+  /* the line sits over the glowing stream, so it gets smoked glass whenever it says something */
+  .caption:not(:empty) { padding: 0.4em 1em; border-radius: 999px; background: rgba(0, 0, 0, 0.65); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); text-shadow: none; }
 
-  .result {
-    width: 100%; margin-top: 32px; overflow: hidden; text-align: left;
-    background: var(--paper); border: 1.5px solid #2d4c6c; border-radius: 18px;
-    box-shadow: 0 30px 60px -34px rgba(15, 42, 68, 0.45);
-  }
-  .result video, .result img { display: block; width: 100%; max-height: 62vh; background: #0f1722; object-fit: contain; }
-  .meta { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 18px 18px 22px; flex-wrap: wrap; }
-  .meta h2 { margin: 0; font-size: 1.12rem; font-weight: 500; overflow-wrap: anywhere; }
-  .meta p { margin: 8px 0 0; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  .meta .ok { color: #2f6b4f; }
+  .result { width: 100%; margin-top: 28px; border-radius: 24px; text-align: left; text-shadow: none; background-color: var(--panel); }
+  .result video, .result img { display: block; width: 100%; max-height: 62vh; background: #050507; object-fit: contain; }
+  .meta { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 20px 20px 24px; flex-wrap: wrap; }
+  .meta h2 { margin: 0; font-size: 1.1rem; font-weight: 500; overflow-wrap: anywhere; }
+  .meta p { margin: 8px 0 0; font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .meta .ok { color: #a6dcbc; }
   .meta .actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .meta .link-line { margin: 10px 0 0; font-family: var(--sans); font-size: 0.95rem; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
-  .link-line a { color: var(--blue); }
+  .link-line a { color: var(--ink); text-underline-offset: 3px; }
 
   [hidden] { display: none !important; }
 
-
   @media (max-width: 600px) {
-    .composer { padding: 16px 14px 14px 16px; border-radius: 16px; }
-    .attach { margin-left: -6px; }
-    .caption { letter-spacing: 0.1em; }
     .meta .actions, .meta .button, .ghost { width: 100%; }
   }
-  /* touch screens: every control at least 44px tall */
+  /* touch screens: every control at least 44px */
   @media (pointer: coarse) {
     .brand { padding-block: 13px; margin-block: -13px; }
-    .go, .button, .ghost { min-height: 46px; padding-inline: 22px; }
-    .attach { min-height: 44px; }
+    .button, .ghost { min-height: 46px; }
     .chip { min-height: 44px; }
     .chip-x { width: 44px; height: 44px; }
     .share { min-height: 44px; }
     .share input { width: 20px; height: 20px; }
   }
-  /* short screens (landscape phones, small phones): pull the box up into view */
+  /* short screens (landscape phones, small laptops): less padding so the pill stays on the first screen */
   @media (max-height: 700px) {
     .top { padding-top: 14px; padding-bottom: 14px; }
-    .hero { padding-top: 56px; padding-bottom: 56px; }
-    h1 { margin-top: 12px; }
-    .composer { margin-top: 16px; min-height: 118px; }
-    .caption { margin-top: 16px; }
+    .hero { padding-top: 64px; padding-bottom: 72px; }
+    .search { margin-top: 16px; }
   }
   @media (max-height: 480px) {
     .top { padding-top: 6px; padding-bottom: 6px; }
-    .hero { padding-top: 44px; padding-bottom: 12px; }
-    .pill { display: none; }
-    h1 { margin-top: 0; }
-    .composer { min-height: 104px; padding-top: 12px; }
+    .hero { padding-top: 44px; padding-bottom: 20px; }
     .caption { margin-top: 10px; }
   }
   /* big monitors: scale the whole page up instead of leaving a small island in the middle */
   @media (min-width: 1800px) and (min-height: 1000px) {
     html { font-size: 112.5%; }
-    .stack { max-width: 980px; }
   }
   @media (min-width: 2400px) and (min-height: 1300px) {
     html { font-size: 131.25%; }
-    .stack { max-width: 1160px; }
-    h1 { font-size: clamp(2.25rem, min(10.5vw, max(4vw, 2.5rem), 8.5vh), 5.4rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     .stack > * { animation: none; }
     * { transition: none !important; }
+    .go[disabled]::after { animation-duration: 2.4s; }   /* still shows it is working, without spinning fast */
+    .backdrop video { opacity: 1; }   /* the clip is not played: its first frame stands in as a still */
   }
 </style>
 </head>
@@ -226,46 +233,47 @@
 <header class="top">
   <a class="brand" href="/" translate="no">
     <svg class="mark" viewBox="130 141 1000 1000" aria-hidden="true" focusable="false">
-      <path fill="#122c3f" d="M588 143H1094L817 437H690L206 832C178 856 158 893 161 962C148 940 142 912 142 880V608C142 560 160 515 200 483Z"/>
-      <path fill="#3e6480" d="M398 724L538 888H1120L932 1140H388C352 1140 320 1128 296 1106L212 1028C168 988 172 902 232 860Z"/>
+      <path fill="#ffffff" d="M588 143H1094L817 437H690L206 832C178 856 158 893 161 962C148 940 142 912 142 880V608C142 560 160 515 200 483Z"/>
+      <path fill="#b4c6d6" d="M398 724L538 888H1120L932 1140H388C352 1140 320 1128 296 1106L212 1028C168 988 172 902 232 860Z"/>
     </svg>
     <span>Cellulo</span>
   </a>
 </header>
 
+<!-- decoration only: muted, looping, no controls; app.js starts it unless the visitor prefers reduced motion -->
+<div class="backdrop" aria-hidden="true">
+  <video id="bg" src="hero.mp4" muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+</div>
+
 <main class="hero">
-  <canvas id="flow" aria-hidden="true"></canvas>
-  <!-- moving content that runs for more than 5 seconds needs a way to stop it -->
-  <button class="motion" id="motion" type="button" aria-pressed="false" aria-label="Pause the background animation" hidden>
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path class="pause" d="M5 3.5v9M11 3.5v9"/><path class="play" d="M5.5 3.5v9l7-4.5z"/></svg>
-  </button>
   <div class="stack">
-    <p class="pill" style="--i:0"><i></i>A simpler way to share files</p>
-    <h1 style="--i:1">Your file is<br><em>one link</em> away.</h1>
-    <form class="composer" id="form" style="--i:2">
+    <h1 style="--i:0">Your file. <em>One link</em> away.</h1>
+    <form class="search liquid-glass" id="form" style="--i:2">
+      <!-- a label for the file input opens the system file picker natively; a scripted click on a hidden input does not in every browser -->
+      <input id="file" type="file" class="sr-only">
+      <label class="attach liquid-glass" id="pick" for="file" title="Attach a file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.5 11.6 12.3 19.8a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.6 8.6a1.7 1.7 0 0 1-2.5-2.5l7.8-7.8"/>
+        </svg>
+        <span class="sr-only">Attach a file</span>
+      </label>
       <label class="sr-only" for="link">File link</label>
-      <textarea id="link" name="link" rows="2" autocomplete="off" spellcheck="false" placeholder="Paste your file link here&hellip;"></textarea>
-      <div class="bar">
-        <!-- a label for the file input opens the system file picker natively; a scripted click on a hidden input does not in every browser -->
-        <input id="file" type="file" class="sr-only">
-        <label class="attach" id="pick" for="file">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M20.5 11.6 12.3 19.8a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.6 8.6a1.7 1.7 0 0 1-2.5-2.5l7.8-7.8"/>
-          </svg>
-          <span>Attach a file</span>
-        </label>
-        <span class="chip" id="chip" hidden>
-          <span id="chip-name"></span>
-          <button type="button" class="chip-x" id="unpick" aria-label="Remove the attached file">&times;</button>
-        </span>
-        <label class="share" id="share-row" hidden><input type="checkbox" id="share" checked> Anyone with the link can restore it</label>
-        <span class="spacer"></span>
-        <button class="go" id="go" type="submit"><span id="go-label">Upload</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
-      </div>
+      <input id="link" name="link" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste your file link here&hellip;">
+      <button class="go liquid-glass" id="go" type="submit">
+        <span class="sr-only" id="go-label">Upload</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
     </form>
-    <!-- empty until there is progress or an error to report; keeps its line so the box doesn't jump -->
+    <div class="attached" style="--i:2">
+      <span class="chip liquid-glass" id="chip" hidden>
+        <span id="chip-name"></span>
+        <button type="button" class="chip-x" id="unpick" aria-label="Remove the attached file">&times;</button>
+      </span>
+      <label class="share" id="share-row" hidden><input type="checkbox" id="share" checked> Anyone with the link can restore it</label>
+    </div>
+    <!-- empty until there is progress or an error to report; keeps its line so the pill doesn't jump -->
     <p class="caption" id="status" role="status" style="--i:3"></p>
-    <section class="result" id="sent" aria-label="Uploaded file" hidden>
+    <section class="result liquid-glass" id="sent" aria-label="Uploaded file" hidden>
       <div class="meta">
         <div>
           <h2 id="sent-name"></h2>
@@ -273,19 +281,19 @@
           <p class="link-line"><a id="sent-link" target="_blank" rel="noopener"></a></p>
         </div>
         <div class="actions">
-          <button type="button" class="button" id="copy">Copy link</button>
-          <button type="button" class="ghost" id="try">Restore it <span class="arrow" aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="button liquid-glass" id="copy">Copy link</button>
+          <button type="button" class="ghost liquid-glass" id="try">Restore it <span class="arrow" aria-hidden="true">&rarr;</span></button>
         </div>
       </div>
     </section>
-    <section class="result" id="result" aria-label="Restored file" hidden>
+    <section class="result liquid-glass" id="result" aria-label="Restored file" hidden>
       <div id="media"></div>
       <div class="meta">
         <div>
           <h2 id="name"></h2>
           <p id="facts"></p>
         </div>
-        <a class="button" id="save">Download <span class="arrow" aria-hidden="true">&darr;</span></a>
+        <a class="button liquid-glass" id="save">Download <span class="arrow" aria-hidden="true">&darr;</span></a>
       </div>
     </section>
   </div>
