@@ -126,6 +126,13 @@ The page follows the owner's reference image and the hero part of its brief. Cel
     - brand at least 19.2:1;
     - placeholder (white at 60%) at least 7.1:1;
     - error line at least 6.2:1.
+- **Devices (checked 25 Nov 2026):** 23 sizes from a folded Galaxy Fold (280x653) through iPhone SE, Android, iPhone and Pixel phones (portrait and landscape), iPads and desktops up to 2560x1440.
+  - At every size: no sideways scroll, the headline stays on one line and on screen, the search pill is on the first screen, touch targets are at least 44 px, and the input is 16 px, so iOS does not zoom on focus.
+  - The attached-file state and the restored-file panel were also checked on 320 and 360 px phones.
+- **Older browsers and other systems:**
+  - Older browsers that lack container units (Safari before 16, Chrome before 105) fall back to `min(7.2vw, 4.5rem)` for the headline, and to `100vh` where small-viewport units are missing.
+  - `web/hero-poster.webp` is the clip's first frame (46 KB). It sits behind the clip, so a frame shows at once and stays when autoplay is blocked (iOS Low Power Mode, Android Data Saver).
+  - Windows High Contrast (`forced-colors`) gets real outlines on the glass elements.
 - **Local server:** `web.py` now serves byte ranges (`206 Partial Content`), so browsers can seek and loop the clip locally. Safari will not play media without them.
 - **Earlier versions** are in git history: the floating-cliffs clip (commit `bd78e94`) and the rim-and-lens glass (commit `979da1d`). The dotted flow is still in `web/flow.js`.
 
