@@ -127,6 +127,7 @@
 
   // one box: an attached file means upload, otherwise a pasted link means restore
   function updateAction() {
+    form.classList.toggle('ready', !!chosen || !!input.value.trim());   // the send button turns amber
     if (go.disabled) return;
     action = chosen || !input.value.trim() ? 'upload' : 'restore';
     goLabel.textContent = action === 'upload' ? 'Upload' : 'Restore';
