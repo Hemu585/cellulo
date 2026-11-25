@@ -120,6 +120,11 @@ A landscape of floating cliffs over clouds plays behind the page, full screen an
 - **Contrast:** a navy veil over the whole clip, deeper behind the headline and box, and deeper still on portrait screens. The tagline sits on a small navy chip.
   - The worst case was measured over seven frames, at 779x668, 1440x900, 390x844 and 844x390, against the brightest 5% of pixels behind each text.
   - Results: headline at least 3.9:1, italic "One link" at least 3.7:1, tagline at least 6.4:1, brand at least 4.8:1 (5.4:1 on a landscape phone), placeholder at least 5.1:1, error line at least 4.6:1.
+- **Liquid glass:** every button (Upload/Restore, Attach a file, Copy link, Restore it, Download and the pause button) is transparent white glass.
+  - It is ported from a React "liquid glass button" component into plain CSS. The page has no React, Tailwind or build step, so only the look was carried over.
+  - The look has two parts: the component's bright inset rim shadows, kept in the `--rim` CSS variable, and its SVG lens filter (`#glass`: fractal noise, then displacement of what's behind), applied with `backdrop-filter: url(#glass)`.
+  - The tagline chip and both panels get the same rim and lens, but keep their navy tint, so the contrast figures above still hold.
+  - Chromium draws the lens. Safari uses the `-webkit-` blur instead and shows only the rim.
 - **The old dotted flow** is kept in `web/flow.js`, which the page doesn't load; its header says how to bring it back.
 
 ### Page design (24 Nov 2026)

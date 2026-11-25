@@ -17,7 +17,11 @@
   :root {
     --bg: #0b1a2a;
     --paper: rgba(9, 24, 41, 0.64);    /* translucent navy panels over the clip */
-    --edge: rgba(214, 228, 240, 0.26);
+    --rim: 0 0 8px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.08),
+           inset 3px 3px 0.5px -3.5px rgba(255, 255, 255, 0.09), inset -3px -3px 0.5px -3.5px rgba(255, 255, 255, 0.85),
+           inset 1px 1px 1px -0.5px rgba(255, 255, 255, 0.6), inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.6),
+           inset 0 0 6px 6px rgba(255, 255, 255, 0.12), inset 0 0 2px 2px rgba(255, 255, 255, 0.06), 0 0 12px rgba(0, 0, 0, 0.15);
+    --lens: url(#glass);   /* the SVG distortion below; browsers that can't use it in backdrop-filter skip just that part */
     --ink: #f4eee2;                    /* warm ivory */
     --blue: #c3dbee;                   /* ice blue */
     --navy: #0a1b2d;
@@ -46,6 +50,7 @@
     /* keep content clear of notches and the home indicator (viewport-fit=cover) */
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
+  .lens { position: absolute; width: 0; height: 0; overflow: hidden; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   /* the top bar floats over the page, so the content can sit in the true middle of the screen */
@@ -94,8 +99,8 @@
   .pill { display: inline-flex; align-items: center; gap: 0.8em; margin: 0; font-family: var(--mono); font-size: min(clamp(0.8rem, 0.95vw, 0.96rem), 4.2vw); letter-spacing: 0.02em; color: var(--slate); white-space: nowrap; }
   .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
   /* a small navy chip under the tagline: small text needs 4.5:1 even over the brightest sky */
-  .pill { padding: 0.5em 1.05em; border-radius: 999px; background: rgba(9, 24, 41, 0.55); border: 1px solid rgba(214, 228, 240, 0.16); text-shadow: none;
-          -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .pill { padding: 0.5em 1.05em; border-radius: 999px; background: rgba(9, 24, 41, 0.55); text-shadow: none; box-shadow: var(--rim);
+          -webkit-backdrop-filter: blur(8px); backdrop-filter: var(--lens) blur(4px); }
 
   h1 {
     margin: clamp(16px, 3.2vh, 32px) 0 0;
@@ -110,11 +115,11 @@
   .composer {
     display: flex; flex-direction: column; gap: 12px; width: 100%; text-align: left;
     margin-top: clamp(22px, 4.2vh, 42px); padding: 18px 16px 16px 22px; min-height: clamp(132px, 18vh, 168px);
-    background: var(--paper); border: 1px solid var(--edge); border-radius: 18px; text-shadow: none;
-    -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: blur(12px) saturate(1.2);   /* only behind the panel; the clip stays crisp */
-    box-shadow: 0 30px 60px -30px rgba(0, 8, 18, 0.6);
+    background: var(--paper); border-radius: 18px; text-shadow: none;
+    -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: var(--lens) blur(8px) saturate(1.2);   /* only behind the panel; the clip stays crisp */
+    box-shadow: var(--rim), 0 30px 60px -30px rgba(0, 8, 18, 0.6);
   }
-  .composer:focus-within { border-color: rgba(214, 228, 240, 0.5); box-shadow: 0 30px 60px -30px rgba(0, 8, 18, 0.6), 0 0 0 4px rgba(180, 208, 228, 0.2); }
+  .composer:focus-within { box-shadow: var(--rim), 0 30px 60px -30px rgba(0, 8, 18, 0.6), 0 0 0 4px rgba(180, 208, 228, 0.25); }
   .composer[data-drop] { border-style: dashed; border-color: var(--blue); }
   .composer textarea {
     flex: 1; width: 100%; min-height: 3em; padding: 0; resize: none; border: 0; outline: 0; background: none;
@@ -125,14 +130,14 @@
   .spacer { flex: 1; }
   .bar .go { margin-left: auto; }   /* stays on the right even when the row wraps on phones */
   .attach {
-    display: inline-flex; align-items: center; gap: 8px; margin-left: -10px; padding: 8px 12px; border-radius: 999px; cursor: pointer;
-    font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.04em; color: var(--slate);
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.04em; color: var(--ink);
   }
   .attach svg { width: 18px; height: 18px; flex: none; }
   #file:focus-visible + .attach { outline: 2px solid var(--blue); outline-offset: 2px; }
   .chip {
     display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; padding: 4px 4px 4px 12px;
-    border-radius: 999px; background: rgba(255, 255, 255, 0.1); color: var(--ink); font-size: 0.9rem;
+    border-radius: 999px; background: rgba(255, 255, 255, 0.1); box-shadow: var(--rim); color: var(--ink); font-size: 0.9rem;
   }
   .chip > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chip-x { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--slate); font-size: 1.1rem; line-height: 1; cursor: pointer; }
@@ -140,40 +145,38 @@
   .share input { width: 16px; height: 16px; margin: 0; accent-color: var(--blue); }
 
   button { font: inherit; }
-  .go, .button {
+  .go, .button, .ghost {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px; flex: none;
     padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer; text-decoration: none;
-    background: #dbe8f1; color: var(--navy); font-family: var(--mono); font-size: 0.95rem; font-weight: 400; letter-spacing: 0.02em;
-    transition: transform 0.15s, background 0.2s;
+    font-family: var(--mono); font-size: 0.95rem; font-weight: 400; letter-spacing: 0.02em;
   }
-  .ghost {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 11px 20px; border-radius: 999px; cursor: pointer;
-    background: none; color: var(--ink); border: 1px solid rgba(214, 228, 240, 0.4); font-family: var(--mono); font-size: 0.95rem;
+  /* liquid glass: transparent white, a bright rim, and the view behind bent through the lens filter */
+  .go, .button, .ghost, .attach, .motion {
+    background: rgba(255, 255, 255, 0.1); color: var(--ink); box-shadow: var(--rim);
+    -webkit-backdrop-filter: blur(3px) saturate(1.3); backdrop-filter: var(--lens) saturate(1.3);
+    transition: transform 0.3s, background 0.2s;
   }
-  .go:active, .button:active, .ghost:active { transform: translateY(1px); }
+  .go:active, .button:active, .ghost:active, .attach:active { transform: scale(0.97); }
   /* hover looks only where there is a real pointer; on touch screens they stick after a tap */
   @media (hover: hover) {
-    .go:hover, .button:hover { background: var(--ink); }
+    .go:hover, .button:hover, .ghost:hover, .attach:hover, .motion:hover { background: rgba(255, 255, 255, 0.18); transform: scale(1.04); }
+    .go[disabled]:hover { background: rgba(255, 255, 255, 0.06); transform: none; }
     .go:hover .arrow, .button:hover .arrow, .ghost:hover .arrow { transform: translateX(3px); }
-    .attach:hover { background: rgba(255, 255, 255, 0.08); color: var(--ink); }
     .chip-x:hover { background: rgba(255, 255, 255, 0.1); color: var(--ink); }
-    .ghost:hover { background: rgba(255, 255, 255, 0.08); }
     .brand:hover { background: rgba(255, 255, 255, 0.08); }
-    .motion:hover { opacity: 1; background: rgba(9, 24, 41, 0.5); }
   }
   .arrow { transition: transform 0.2s; }
   .motion {
     position: fixed; z-index: 3; left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom));
     display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
-    background: none; color: var(--ink); opacity: 0.6; cursor: pointer;
+    cursor: pointer;
   }
   .motion svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .motion .play { display: none; }
   .motion[aria-pressed="true"] .pause { display: none; }
   .motion[aria-pressed="true"] .play { display: inline; }
-  .motion:focus-visible { opacity: 1; }
   .go, .button, .ghost, .attach, .chip-x, .share, .motion, .brand { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  .go[disabled] { cursor: progress; background: #94a8b8; }
+  .go[disabled] { cursor: progress; background: rgba(255, 255, 255, 0.06); color: #d9d3c8; }
   :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
   .composer textarea:focus-visible { outline: 0; }
 
@@ -186,9 +189,9 @@
 
   .result {
     width: 100%; margin-top: 32px; overflow: hidden; text-align: left;
-    background: var(--paper); border: 1px solid var(--edge); border-radius: 18px; text-shadow: none;
-    -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: blur(12px) saturate(1.2);
-    box-shadow: 0 30px 60px -30px rgba(0, 8, 18, 0.6);
+    background: var(--paper); border-radius: 18px; text-shadow: none;
+    -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: var(--lens) blur(8px) saturate(1.2);
+    box-shadow: var(--rim), 0 30px 60px -30px rgba(0, 8, 18, 0.6);
   }
   .result video, .result img { display: block; width: 100%; max-height: 62vh; background: #050d16; object-fit: contain; }
   .meta { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 18px 18px 22px; flex-wrap: wrap; }
@@ -204,7 +207,6 @@
 
   @media (max-width: 600px) {
     .composer { padding: 16px 14px 14px 16px; border-radius: 16px; }
-    .attach { margin-left: -6px; }
     .caption { letter-spacing: 0.1em; }
     .meta .actions, .meta .button, .ghost { width: 100%; }
   }
@@ -251,6 +253,15 @@
 </style>
 </head>
 <body>
+<svg class="lens" aria-hidden="true" focusable="false">
+  <filter id="glass" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05 0.05" numOctaves="1" seed="1" result="turbulence"/>
+    <feGaussianBlur in="turbulence" stdDeviation="2" result="blurredNoise"/>
+    <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="70" xChannelSelector="R" yChannelSelector="B" result="displaced"/>
+    <feGaussianBlur in="displaced" stdDeviation="4" result="finalBlur"/>
+    <feComposite in="finalBlur" in2="finalBlur" operator="over"/>
+  </filter>
+</svg>
 <header class="top">
   <a class="brand" href="/" translate="no">
     <svg class="mark" viewBox="130 141 1000 1000" aria-hidden="true" focusable="false">
