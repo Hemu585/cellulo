@@ -100,32 +100,24 @@ Chunks are placed by their number, not by row position, so sorting or moving row
 - `Content-Security-Policy`: script only from this site and Google's sign-in library (no inline script, which is why the script lives in `app.js`); connections only to this site, `sheets.googleapis.com`, `www.googleapis.com` and Google sign-in; fonts from Google Fonts; images and media from this site or `blob:`; `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'none'`.
 - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` (the API key's referrer lock still gets the site's origin), and a `Permissions-Policy` that turns off camera, microphone and location.
 
-### Background clip (25 Nov 2026)
+### Hero, after the owner's reference (25 Nov 2026)
 
-A landscape of floating cliffs over clouds plays behind the page, full screen and fixed while the page scrolls. The text, logo and box are ordinary HTML on top. Palette: warm ivory text (`#f4eee2`), ice-blue accents (`#c3dbee`), and translucent deep-navy panels with a light blur behind them only. The clip itself is never blurred. The logo is drawn in ivory and ice blue so it shows on the dark background; the favicon keeps its own colours.
+The page follows the owner's reference image and its "Section 1" brief, reusing only the hero: there are no extra page sections, nav links, sign-up or social buttons. The brand stays centred at the top, as the owner chose earlier, and the wording keeps "file".
 
-- **Source:** the owner's 1280x720 clip (H.264, 24 fps, 10 s, with an audio track, 3.7 MB). The 2560x1440 "upscaled" copy was not used.
-- **`web/hero.mp4`:** H.264 High, 1280x720, no audio, 9 s, 1.3 MB, with `faststart`.
-  - The last and first frames of the source don't match: the camera drifts, so a plain loop visibly jumps.
-  - The web copy plays from 1 s to the end and crossfades its last second into the first second. It now ends on the frame it starts with.
-- **`web/hero-poster.webp`:** the clip's first frame (73 KB).
-  - It is preloaded and also set as the backdrop's CSS background, so it shows at once.
-  - It stays when autoplay is blocked or the clip fails to load.
-- **Playback:**
-  - Muted, looping, `playsinline`, no controls, hidden from screen readers.
-  - `object-fit: cover`, with `object-position: 55% 50%` so the open sky between the cliffs sits behind the content. On tall phone screens only the sky shows.
-  - `app.js` starts it with `play()` rather than the `autoplay` attribute, so visitors who prefer reduced motion get the still poster, and the clip is never downloaded for them.
-  - The bottom-left button pauses and resumes it, and remembers the choice. A paused visitor doesn't download the clip either.
+- **Background:** the owner's chosen clip, loaded from its CloudFront address (1756x1176, 13 s, 13.5 MB; the CSP allows that host for media).
+  - It fills the screen, anchored at the bottom so the figure stays in view, over a black page.
+  - `app.js` fades it in over 500 ms, fades it to black when 0.55 s are left, and after `ended` restarts it 100 ms later with a fresh fade-in. There is no `loop` attribute.
+  - The pause button is remembered. Reduced-motion visitors get the clip's first frame as a still, with no pause button.
   - Coming back to the tab resumes playback.
-- **Contrast:** a navy veil over the whole clip, deeper behind the headline and box, and deeper still on portrait screens. The tagline sits on a small navy chip.
-  - The worst case was measured over seven frames, at 779x668, 1440x900, 390x844 and 844x390, against the brightest 5% of pixels behind each text.
-  - Results: headline at least 3.9:1, italic "One link" at least 3.7:1, tagline at least 6.4:1, brand at least 4.8:1 (5.4:1 on a landscape phone), placeholder at least 5.1:1, error line at least 4.6:1.
-- **Liquid glass:** every button (Upload/Restore, Attach a file, Copy link, Restore it, Download and the pause button) is transparent white glass.
-  - It is ported from a React "liquid glass button" component into plain CSS. The page has no React, Tailwind or build step, so only the look was carried over.
-  - The look has two parts: the component's bright inset rim shadows, kept in the `--rim` CSS variable, and its SVG lens filter (`#glass`: fractal noise, then displacement of what's behind), applied with `backdrop-filter: url(#glass)`.
-  - The tagline chip and both panels get the same rim and lens, but keep their navy tint, so the contrast figures above still hold.
-  - Chromium draws the lens. Safari uses the `-webkit-` blur instead and shows only the rim.
-- **The old dotted flow** is kept in `web/flow.js`, which the page doesn't load; its header says how to bring it back.
+- **Type:** Instrument Serif headline "Your file. / *One link* away." in white, with tight tracking.
+- **Search pill:** a `.liquid-glass` pill, max 36rem wide, holding a round attach button, the link field, and a white round send button with a black arrow. The arrow turns into a spinner while busy, and the visible label lives in a screen-reader-only span.
+  - The attached file's chip and the share checkbox sit under the pill.
+- **`.liquid-glass`:** almost clear white, a 4 px blur behind, and a 1.4 px rim that is brighter at the top and bottom edges. It is used on the tagline, pill, attach and pause buttons, the file chip, the result panels and their buttons.
+- **Readability:** the glowing stream rises behind the pill and the status line near the end of the clip.
+  - The pill, file chip, share label and status line get a smoked tint.
+  - The result panels get a dark tint.
+  - These were checked by eye at 1.5 s, 9 s and 12.5 s. The CDN sends no CORS header, so the canvas contrast measurement used for the earlier clip can't read these frames.
+- **Earlier versions** are in git history: the floating-cliffs clip, with its crossfaded loop and poster (commit `bd78e94`), and the rim-and-lens glass (commit `979da1d`). The dotted flow is still in `web/flow.js`.
 
 ### Page design (24 Nov 2026)
 
@@ -133,7 +125,7 @@ Follows the owner's reference image: "Cellulo" with the C logo centred at the to
 
 - One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a file", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
 - The flow lines meet in a point just outside each side of the box. The earlier dot shapes and their morph were removed at the owner's request.
-- Fonts: **Newsreader** for the headline (optical sizes, italic for "one link"), **Schibsted Grotesk** for the interface, **Fragment Mono** for small labels. The headline is 36 px on small phones and 67 px at 1678 px wide, capped at 72 px (larger only on 1800+ px monitors, where the whole page scales up).
+- Fonts: **Instrument Serif** for the headline (italic for "One link"), **Schibsted Grotesk** for the interface, **Fragment Mono** for the small tagline. The headline is 3 rem on phones, up to 7.5 rem, and also follows the screen height (11vh) so short screens keep the search pill in view.
 - Web Interface Guidelines applied: "…" on loading states, non-breaking spaces in sizes, tabular numbers in the progress line, `color-scheme: light`, `touch-action: manipulation` on controls, no transitions on colour or shadow, `translate="no"` on the brand.
 - A small pause button at the bottom left stops the flow animation (moving content that runs longer than 5 seconds needs one). The choice is remembered in the browser; reduced-motion visitors get a still frame and no button.
 

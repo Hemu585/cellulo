@@ -1,17 +1,37 @@
 (() => {
-  // ---------- background: the landscape clip, or its still poster ----------
-  // play() is called here rather than by an autoplay attribute, so reduced-motion visitors never see it move
+  // ---------- background: the clip fades up from black, fades back down just before it ends, then starts over ----------
+  // play() is called here rather than by an autoplay attribute, so reduced-motion visitors get its first frame as a still
   const form = document.getElementById('form'), clip = document.getElementById('bg'), motion = document.getElementById('motion');
   const still = matchMedia('(prefers-reduced-motion: reduce)');
-  let paused = false;
+  const FADE_MS = 500, FADE_OUT_AT = 0.55;   // seconds left when the fade to black starts
+  let paused = false, fading = 0, fadingOut = false;
   try { paused = localStorage.getItem('cellulo-motion') === 'paused'; } catch {}
+  const opacity = () => Number(clip.style.opacity || 0);
+  function fadeTo(target) {
+    cancelAnimationFrame(fading);
+    const from = opacity(), began = performance.now();
+    const step = now => {
+      const k = Math.min(1, (now - began) / FADE_MS);
+      clip.style.opacity = String(from + (target - from) * k);
+      if (k < 1) fading = requestAnimationFrame(step);
+    };
+    fading = requestAnimationFrame(step);
+  }
+  const moving = () => !paused && !still.matches;
   function sync() {
-    motion.hidden = still.matches;   // reduced motion: the poster only, so there is nothing to pause
+    motion.hidden = still.matches;   // reduced motion: a still frame only, so there is nothing to pause
     motion.setAttribute('aria-pressed', String(paused));
     motion.setAttribute('aria-label', paused ? 'Play the background' : 'Pause the background');
-    if (paused || still.matches) clip.pause();
-    else clip.play().catch(() => {});   // autoplay blocked or the file failed: the poster stays
+    if (!moving()) { clip.pause(); if (!still.matches) fadeTo(1); return; }   // a paused frame stays visible
+    clip.play().then(() => { if (!fadingOut) fadeTo(1); }).catch(() => {});   // autoplay blocked or the file failed: plain black stays
   }
+  clip.addEventListener('timeupdate', () => {
+    if (!fadingOut && clip.duration - clip.currentTime <= FADE_OUT_AT) { fadingOut = true; fadeTo(0); }
+  });
+  clip.addEventListener('ended', () => {
+    cancelAnimationFrame(fading); clip.style.opacity = '0';
+    setTimeout(() => { clip.currentTime = 0; fadingOut = false; if (moving()) sync(); }, 100);
+  });
   motion.addEventListener('click', () => {
     paused = !paused;
     try { localStorage.setItem('cellulo-motion', paused ? 'paused' : 'moving'); } catch {}
@@ -149,7 +169,7 @@
     result.hidden = true; sent.hidden = true;
     updateAction();
     if (chosen) {
-      say('Press Upload and sign in with your own Google account. The file stays in your Drive.');
+      say('Press the arrow to upload, then sign in with your own Google account. The file stays in your Drive.');
       loadGis().catch(error => say(error.message, true));   // ready before the click, so the sign-in window may open
     } else say('');
   }

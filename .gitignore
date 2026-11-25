@@ -5,7 +5,6 @@ client_secret*.json
 
 # test media
 *.mp4
-!web/hero.mp4
 *.mov
 *.jpg
 *.jpeg
