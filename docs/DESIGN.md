@@ -108,7 +108,7 @@ The page follows the owner's reference image and the hero part of its brief. Cel
   - **Source:** downloaded once from its CloudFront address: 1756x1176, 24 fps, 13 s, no audio, 13.5 MB.
   - **The jump:** the source ends with a large golden stream above the figure but starts with a small glow, so a plain loop jumps (SSIM 0.82 across the cut, against 0.995 between normal frames).
   - **The fix:** the web copy plays from 2 s to the end and crossfades its last 2 seconds into the first 2. The stream dissolves and rises again, and the last frame matches the first.
-  - **The file:** 11 s, H.264 High, CRF 25, `faststart`, 2.2 MB. The camera, figure and clouds don't move, so only the stream and the stars blend.
+  - **The file:** 11 s, H.264 High, CRF 18, `faststart`, 6.6 MB (SSIM 0.996 against the source; the earlier CRF 25 copy was 2.2 MB at 0.992, and the owner chose the higher quality). The camera, figure and clouds don't move, so only the stream and the stars blend.
   - **Playback:** it plays with the native `loop` attribute. On first load it fades in once (0.8 s), when its first frame is ready, and never fades to black. In Chrome the longest freeze across two loop points was 25 ms, under one frame.
   - **No pause button:** the owner removed it on 25 Nov 2026. Visitors whose device asks for reduced motion get the first frame as a still. This does not fully meet WCAG 2.2.2 (Pause, Stop, Hide) for everyone else. Coming back to the tab resumes playback.
 - **Type:** **DM Sans** for everything, from the owner's chosen specimen ("calm product design").
