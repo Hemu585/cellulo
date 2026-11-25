@@ -114,7 +114,7 @@ The page follows the owner's reference image and the hero part of its brief. Cel
 - **Headline font:** **Cormorant Garamond**, light 300 with italic 400 for "One link".
   - Picked with the ui-ux-pro-max typography search (elegant and luxury pairings: Cormorant, Playfair Display, Bodoni Moda, Cinzel).
   - Its airy, calligraphic strokes suit the night sky, it contrasts well with the Schibsted Grotesk interface, and it is narrow enough for one line.
-  - **One line:** the line is about 8.9 em long, so `font-size: min(9.4vw, 12vh, 6.25rem)` keeps it at about 84% of the screen width on phones, with `white-space: nowrap`.
+  - **One line:** the line is about 8.9 em long, so `font-size: min(7.2vw, 9.5vh, 4.5rem)` keeps it at about 64% of the screen width on phones and, on larger screens, about as wide as the search pill, with `white-space: nowrap`.
 - **Search pill:** a `.liquid-glass` pill, max 36rem wide, holding a round attach button, the link field, and a white round send button with a black arrow. The arrow turns into a spinner while busy, and the visible label lives in a screen-reader-only span.
   - The attached file's chip and the share checkbox sit under the pill.
   - The extra bottom padding (up to 36vh) lifts the pill into the upper half of the screen.
@@ -135,7 +135,7 @@ The page follows the owner's reference image and the hero part of its brief. Cel
 
 - One box does both jobs. A pasted link makes the button **Restore**; an attached file (button "Attach a file", or drag and drop) makes it **Upload** and shows a chip with the file name, a remove button and the share checkbox. Attaching a file clears a pasted link. Enter sends; Shift+Enter makes a new line.
 - The flow lines meet in a point just outside each side of the box. The earlier dot shapes and their morph were removed at the owner's request.
-- Fonts: **Cormorant Garamond** for the headline (light, italic for "One link"), **Schibsted Grotesk** for the interface. The headline stays on one line: `min(9.4vw, 12vh, 6.25rem)`.
+- Fonts: **Cormorant Garamond** for the headline (light, italic for "One link"), **Schibsted Grotesk** for the interface. The headline stays on one line: `min(7.2vw, 9.5vh, 4.5rem)`.
 - Web Interface Guidelines applied: "…" on loading states, non-breaking spaces in sizes, tabular numbers in the progress line, `color-scheme: light`, `touch-action: manipulation` on controls, no transitions on colour or shadow, `translate="no"` on the brand.
 - A small pause button at the bottom left stops the flow animation (moving content that runs longer than 5 seconds needs one). The choice is remembered in the browser; reduced-motion visitors get a still frame and no button.
 
